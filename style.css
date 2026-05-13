@@ -1,0 +1,318 @@
+/* ===== リセット & 基本設定 ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+  background: #f0f4f8;
+  color: #1a202c;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+/* ===== アプリ全体のレイアウト ===== */
+.app {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ===== ヘッダー ===== */
+.app-header {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.header-top h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.today {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+/* ===== 統計カード ===== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.stat-card {
+  background: #f7fafc;
+  border-radius: 12px;
+  padding: 0.75rem;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.stat-card.warn { background: #fff5f0; border-color: #fbd38d; }
+.stat-card.done { background: #f0fff4; border-color: #9ae6b4; }
+
+.stat-num {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.stat-card.warn .stat-num { color: #c05621; }
+.stat-card.done .stat-num { color: #276749; }
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+/* ===== 追加フォーム ===== */
+.add-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.add-section h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2d3748;
+}
+
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+input[type="text"],
+input[type="date"],
+select {
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 0.9rem;
+  color: #2d3748;
+  background: #f7fafc;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input[type="text"] {
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus {
+  border-color: #4299e1;
+  background: #fff;
+}
+
+select {
+  flex: 1;
+  min-width: 120px;
+  cursor: pointer;
+}
+
+#btn-add {
+  height: 42px;
+  background: #3182ce;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+#btn-add:hover { background: #2b6cb0; }
+#btn-add:active { transform: scale(0.98); }
+
+/* ===== タスクリスト ===== */
+.list-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ===== フィルタータブ ===== */
+.filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  padding: 5px 14px;
+  border-radius: 99px;
+  border: 1px solid #e2e8f0;
+  background: transparent;
+  color: #718096;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab:hover { border-color: #4299e1; color: #3182ce; }
+
+.tab.active {
+  background: #ebf8ff;
+  border-color: #4299e1;
+  color: #2b6cb0;
+  font-weight: 600;
+}
+
+/* ===== タスクカード ===== */
+.task-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  transition: box-shadow 0.15s;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+.task-card.is-done {
+  opacity: 0.5;
+  background: #f7fafc;
+}
+
+/* チェックボックス */
+.check-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  font-size: 13px;
+  color: #fff;
+}
+
+.check-btn:hover { border-color: #4299e1; }
+.check-btn.checked { background: #38a169; border-color: #38a169; }
+
+/* タスク情報 */
+.task-info { flex: 1; min-width: 0; }
+
+.task-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2d3748;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-card.is-done .task-title {
+  text-decoration: line-through;
+  color: #a0aec0;
+}
+
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 科目バッジ */
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 99px;
+}
+
+.badge-プログラミング { background: #ebf8ff; color: #2b6cb0; }
+.badge-数学           { background: #f5f0ff; color: #6b46c1; }
+.badge-英語           { background: #e6fffa; color: #285e61; }
+.badge-物理           { background: #fffaf0; color: #c05621; }
+.badge-その他         { background: #f7fafc; color: #4a5568; }
+
+/* 締切表示 */
+.deadline {
+  font-size: 0.78rem;
+  color: #718096;
+}
+
+.deadline.is-urgent { color: #e53e3e; font-weight: 600; }
+
+/* 優先度 */
+.priority {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.priority-高 { background: #fff5f5; color: #c53030; }
+.priority-中 { background: #fffbeb; color: #92400e; }
+.priority-低 { background: #f0fff4; color: #276749; }
+
+/* 削除ボタン */
+.delete-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #cbd5e0;
+  font-size: 1.1rem;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.delete-btn:hover { color: #e53e3e; background: #fff5f5; }
+
+/* ===== 空メッセージ ===== */
+.empty-msg {
+  text-align: center;
+  color: #a0aec0;
+  font-size: 0.95rem;
+  padding: 2rem 0;
+}

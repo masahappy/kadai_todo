@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>課題ToDo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app">
+    <header class="app-header">
+      <div class="header-top">
+        <h1>📚 課題ToDo</h1>
+        <span id="today-date" class="today"></span>
+      </div>
+      <div class="stats">
+        <div class="stat-card">
+          <span id="stat-total" class="stat-num">0</span>
+          <span class="stat-label">未完了</span>
+        </div>
+        <div class="stat-card warn">
+          <span id="stat-urgent" class="stat-num">0</span>
+          <span class="stat-label">締切間近</span>
+        </div>
+        <div class="stat-card done">
+          <span id="stat-done" class="stat-num">0</span>
+          <span class="stat-label">完了済み</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="add-section">
+      <h2>課題を追加</h2>
+      <div class="add-form">
+        <div class="form-row">
+          <input type="text" id="input-title" placeholder="課題名を入力...">
+        </div>
+        <div class="form-row">
+          <select id="input-subject">
+            <option value="">科目を選択</option>
+            <option value="プログラミング">プログラミング</option>
+            <option value="数学">数学</option>
+            <option value="英語">英語</option>
+            <option value="物理">物理</option>
+            <option value="その他">その他</option>
+          </select>
+          <input type="date" id="input-deadline">
+          <select id="input-priority">
+            <option value="中">優先度：中</option>
+            <option value="高">優先度：高</option>
+            <option value="低">優先度：低</option>
+          </select>
+        </div>
+        <button id="btn-add" onclick="addTask()">＋ 追加する</button>
+      </div>
+    </section>
+
+    <section class="list-section">
+      <div class="filter-tabs">
+        <button class="tab active" onclick="filterBySubject('すべて', this)">すべて</button>
+        <button class="tab" onclick="filterBySubject('プログラミング', this)">プログラミング</button>
+        <button class="tab" onclick="filterBySubject('数学', this)">数学</button>
+        <button class="tab" onclick="filterBySubject('英語', this)">英語</button>
+        <button class="tab" onclick="filterBySubject('物理', this)">物理</button>
+        <button class="tab" onclick="filterBySubject('その他', this)">その他</button>
+      </div>
+
+      <div id="task-list">
+        <!-- タスクはJavaScriptで動的に生成されます -->
+      </div>
+
+      <p id="empty-msg" class="empty-msg" style="display:none">課題はありません 🎉</p>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
