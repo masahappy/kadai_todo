@@ -4,7 +4,7 @@
   margin: 0;
   padding: 0;
 }
-
+ 
 body {
   font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
   background: #f0f4f8;
@@ -12,7 +12,7 @@ body {
   min-height: 100vh;
   padding: 2rem 1rem;
 }
-
+ 
 /* ===== アプリ全体のレイアウト ===== */
 .app {
   max-width: 680px;
@@ -21,7 +21,7 @@ body {
   flex-direction: column;
   gap: 1.5rem;
 }
-
+ 
 /* ===== ヘッダー ===== */
 .app-header {
   background: #fff;
@@ -29,32 +29,32 @@ body {
   padding: 1.5rem;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
-
+ 
 .header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
-
+ 
 .header-top h1 {
   font-size: 1.5rem;
   font-weight: 700;
   color: #1a202c;
 }
-
+ 
 .today {
   font-size: 0.85rem;
   color: #718096;
 }
-
+ 
 /* ===== 統計カード ===== */
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
 }
-
+ 
 .stat-card {
   background: #f7fafc;
   border-radius: 12px;
@@ -62,25 +62,25 @@ body {
   text-align: center;
   border: 1px solid #e2e8f0;
 }
-
+ 
 .stat-card.warn { background: #fff5f0; border-color: #fbd38d; }
 .stat-card.done { background: #f0fff4; border-color: #9ae6b4; }
-
+ 
 .stat-num {
   display: block;
   font-size: 1.6rem;
   font-weight: 700;
   color: #2d3748;
 }
-
+ 
 .stat-card.warn .stat-num { color: #c05621; }
 .stat-card.done .stat-num { color: #276749; }
-
+ 
 .stat-label {
   font-size: 0.75rem;
   color: #718096;
 }
-
+ 
 /* ===== 追加フォーム ===== */
 .add-section {
   background: #fff;
@@ -88,26 +88,26 @@ body {
   padding: 1.5rem;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
-
+ 
 .add-section h2 {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: #2d3748;
 }
-
+ 
 .add-form {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
-
+ 
 .form-row {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
-
+ 
 input[type="text"],
 input[type="date"],
 select {
@@ -121,24 +121,24 @@ select {
   outline: none;
   transition: border-color 0.2s;
 }
-
+ 
 input[type="text"] {
   width: 100%;
 }
-
+ 
 input[type="text"]:focus,
 input[type="date"]:focus,
 select:focus {
   border-color: #4299e1;
   background: #fff;
 }
-
+ 
 select {
   flex: 1;
   min-width: 120px;
   cursor: pointer;
 }
-
+ 
 #btn-add {
   height: 42px;
   background: #3182ce;
@@ -150,10 +150,10 @@ select {
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
 }
-
+ 
 #btn-add:hover { background: #2b6cb0; }
 #btn-add:active { transform: scale(0.98); }
-
+ 
 /* ===== タスクリスト ===== */
 .list-section {
   background: #fff;
@@ -161,7 +161,7 @@ select {
   padding: 1.5rem;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
-
+ 
 /* ===== フィルタータブ ===== */
 .filter-tabs {
   display: flex;
@@ -169,7 +169,7 @@ select {
   flex-wrap: wrap;
   margin-bottom: 1rem;
 }
-
+ 
 .tab {
   padding: 5px 14px;
   border-radius: 99px;
@@ -180,16 +180,16 @@ select {
   cursor: pointer;
   transition: all 0.15s;
 }
-
+ 
 .tab:hover { border-color: #4299e1; color: #3182ce; }
-
+ 
 .tab.active {
   background: #ebf8ff;
   border-color: #4299e1;
   color: #2b6cb0;
   font-weight: 600;
 }
-
+ 
 /* ===== タスクカード ===== */
 .task-card {
   display: flex;
@@ -202,19 +202,19 @@ select {
   transition: box-shadow 0.15s;
   animation: fadeIn 0.2s ease;
 }
-
+ 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
+ 
 .task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-
+ 
 .task-card.is-done {
   opacity: 0.5;
   background: #f7fafc;
 }
-
+ 
 /* チェックボックス */
 .check-btn {
   width: 22px;
@@ -231,13 +231,13 @@ select {
   font-size: 13px;
   color: #fff;
 }
-
+ 
 .check-btn:hover { border-color: #4299e1; }
 .check-btn.checked { background: #38a169; border-color: #38a169; }
-
+ 
 /* タスク情報 */
 .task-info { flex: 1; min-width: 0; }
-
+ 
 .task-title {
   font-size: 0.95rem;
   font-weight: 500;
@@ -247,19 +247,19 @@ select {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
+ 
 .task-card.is-done .task-title {
   text-decoration: line-through;
   color: #a0aec0;
 }
-
+ 
 .task-meta {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
-
+ 
 /* 科目バッジ */
 .badge {
   font-size: 0.72rem;
@@ -267,21 +267,21 @@ select {
   padding: 2px 10px;
   border-radius: 99px;
 }
-
+ 
 .badge-プログラミング { background: #ebf8ff; color: #2b6cb0; }
 .badge-数学           { background: #f5f0ff; color: #6b46c1; }
 .badge-英語           { background: #e6fffa; color: #285e61; }
 .badge-物理           { background: #fffaf0; color: #c05621; }
 .badge-その他         { background: #f7fafc; color: #4a5568; }
-
+ 
 /* 締切表示 */
 .deadline {
   font-size: 0.78rem;
   color: #718096;
 }
-
+ 
 .deadline.is-urgent { color: #e53e3e; font-weight: 600; }
-
+ 
 /* 優先度 */
 .priority {
   font-size: 0.72rem;
@@ -289,11 +289,11 @@ select {
   padding: 2px 8px;
   border-radius: 4px;
 }
-
+ 
 .priority-高 { background: #fff5f5; color: #c53030; }
 .priority-中 { background: #fffbeb; color: #92400e; }
 .priority-低 { background: #f0fff4; color: #276749; }
-
+ 
 /* 削除ボタン */
 .delete-btn {
   background: transparent;
@@ -306,13 +306,169 @@ select {
   transition: color 0.15s, background 0.15s;
   flex-shrink: 0;
 }
-
+ 
 .delete-btn:hover { color: #e53e3e; background: #fff5f5; }
-
+ 
 /* ===== 空メッセージ ===== */
 .empty-msg {
   text-align: center;
   color: #a0aec0;
   font-size: 0.95rem;
   padding: 2rem 0;
+}
+ 
+/* ===== Phase 2 追加スタイル ===== */
+ 
+/* 予定入力セクション */
+.schedule-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+ 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+ 
+.section-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+ 
+#schedule-toggle-icon {
+  color: #718096;
+  font-size: 0.85rem;
+}
+ 
+.section-desc {
+  font-size: 0.85rem;
+  color: #718096;
+  margin: 0.75rem 0;
+  line-height: 1.6;
+}
+ 
+.schedule-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+ 
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+ 
+.schedule-row label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a5568;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+ 
+.schedule-row input {
+  flex: 1;
+  height: 36px;
+  font-size: 0.85rem;
+}
+ 
+.btn-save-schedule {
+  margin-top: 1rem;
+  height: 38px;
+  padding: 0 1.25rem;
+  background: #48bb78;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+ 
+.btn-save-schedule:hover { background: #38a169; }
+ 
+/* AIアドバイスセクション */
+.ai-section {
+  background: linear-gradient(135deg, #ebf8ff 0%, #f5f0ff 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border: 1px solid #bee3f8;
+}
+ 
+.ai-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+ 
+.btn-ai {
+  width: 100%;
+  height: 46px;
+  background: linear-gradient(135deg, #3182ce, #6b46c1);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  margin-top: 0.75rem;
+}
+ 
+.btn-ai:hover   { opacity: 0.9; }
+.btn-ai:active  { transform: scale(0.98); }
+.btn-ai:disabled { opacity: 0.6; cursor: not-allowed; }
+ 
+.ai-result {
+  margin-top: 1rem;
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+}
+ 
+.ai-answer h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+}
+ 
+.ai-text {
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.8;
+}
+ 
+.ai-loading {
+  color: #718096;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+ 
+.ai-error {
+  color: #e53e3e;
+  font-size: 0.9rem;
+  text-align: center;
+}
+ 
+/* バッジ（自由入力になったので汎用スタイルに） */
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 99px;
+  background: #edf2f7;
+  color: #4a5568;
 }
