@@ -30,6 +30,7 @@
       </div>
     </header>
 
+    <!-- 課題追加フォーム -->
     <section class="add-section">
       <h2>課題を追加</h2>
       <div class="add-form">
@@ -37,7 +38,7 @@
           <input type="text" id="input-title" placeholder="課題名を入力...">
         </div>
         <div class="form-row">
-          <input type="text" id="input-subject" placeholder="カテゴリ">
+          <input type="text" id="input-subject" placeholder="カテゴリ（例：就活、授業、バイト）">
           <input type="date" id="input-deadline">
           <select id="input-priority">
             <option value="中">優先度：中</option>
@@ -49,20 +50,71 @@
       </div>
     </section>
 
+    <!-- 今週の予定入力 -->
+    <section class="schedule-section">
+      <div class="section-header" onclick="toggleSchedule()">
+        <h2>📅 今週の予定を入力</h2>
+        <span id="schedule-toggle-icon">▼</span>
+      </div>
+      <div id="schedule-body">
+        <p class="section-desc">授業・部活・バイトなど、今週の予定を入力するとAIがより的確なアドバイスをくれます。</p>
+        <div class="schedule-grid">
+          <div class="schedule-row">
+            <label>月曜日</label>
+            <input type="text" id="schedule-mon" placeholder="例：3〜4限 線形代数、夕方バイト">
+          </div>
+          <div class="schedule-row">
+            <label>火曜日</label>
+            <input type="text" id="schedule-tue" placeholder="例：1〜2限 英語">
+          </div>
+          <div class="schedule-row">
+            <label>水曜日</label>
+            <input type="text" id="schedule-wed" placeholder="例：部活（疲れやすい）">
+          </div>
+          <div class="schedule-row">
+            <label>木曜日</label>
+            <input type="text" id="schedule-thu" placeholder="例：終日授業">
+          </div>
+          <div class="schedule-row">
+            <label>金曜日</label>
+            <input type="text" id="schedule-fri" placeholder="例：午後から空き">
+          </div>
+          <div class="schedule-row">
+            <label>土曜日</label>
+            <input type="text" id="schedule-sat" placeholder="例：自由">
+          </div>
+          <div class="schedule-row">
+            <label>日曜日</label>
+            <input type="text" id="schedule-sun" placeholder="例：自由">
+          </div>
+        </div>
+        <div class="schedule-row" style="margin-top: 0.75rem;">
+          <label>体調・状況</label>
+          <input type="text" id="schedule-condition" placeholder="例：今週は少し疲れ気味、試験期間">
+        </div>
+        <button class="btn-save-schedule" onclick="saveSchedule()">💾 予定を保存</button>
+      </div>
+    </section>
+
+    <!-- AIアドバイスセクション -->
+    <section class="ai-section">
+      <div class="ai-header">
+        <h2>🤖 AIアドバイス</h2>
+      </div>
+      <p class="section-desc">未完了の課題と今週の予定をもとに、AIが効率的なスケジュールを提案します。</p>
+      <button class="btn-ai" onclick="getAIAdvice()">✨ AIにアドバイスをもらう</button>
+      <div id="ai-result" class="ai-result" style="display:none"></div>
+    </section>
+
+    <!-- タスクリスト -->
     <section class="list-section">
       <div class="filter-tabs">
         <button class="tab active" onclick="filterBySubject('すべて', this)">すべて</button>
-        <button class="tab" onclick="filterBySubject('プログラミング', this)">プログラミング</button>
-        <button class="tab" onclick="filterBySubject('数学', this)">数学</button>
-        <button class="tab" onclick="filterBySubject('英語', this)">英語</button>
-        <button class="tab" onclick="filterBySubject('物理', this)">物理</button>
-        <button class="tab" onclick="filterBySubject('その他', this)">その他</button>
+        <button class="tab" onclick="filterBySubject('未完了', this)">未完了</button>
+        <button class="tab" onclick="filterBySubject('完了済み', this)">完了済み</button>
       </div>
 
-      <div id="task-list">
-        <!-- タスクはJavaScriptで動的に生成されます -->
-      </div>
-
+      <div id="task-list"></div>
       <p id="empty-msg" class="empty-msg" style="display:none">課題はありません 🎉</p>
     </section>
   </div>
