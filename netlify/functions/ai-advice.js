@@ -1,11 +1,13 @@
 exports.handler = async function (event) {
-  // POSTリクエスト以外は拒否
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
   const { prompt } = JSON.parse(event.body);
   const apiKey = process.env.GROQ_API_KEY;
+
+  // APIキーが読み込まれているか確認
+  console.log('APIキーの最初の10文字:', apiKey ? apiKey.substring(0, 10) : 'undefined');
 
   try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -21,7 +23,11 @@ exports.handler = async function (event) {
       })
     });
 
+    console.log('Groqのレスポンスステータス:', response.status);
+
     const data = await response.json();
+    console.log('Groqのレスポンス:', JSON.stringify(data).substring(0, 200));
+
     const text = data.choices[0].message.content;
 
     return {
@@ -29,9 +35,10 @@ exports.handler = async function (event) {
       body: JSON.stringify({ text })
     };
   } catch (err) {
+    console.log('エラー:', err.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'AIとの通信に失敗しました' })
+      body: JSON.stringify({ error: err.message })
     };
   }
 };
