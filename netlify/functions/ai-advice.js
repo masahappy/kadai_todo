@@ -6,9 +6,6 @@ exports.handler = async function (event) {
   const { prompt } = JSON.parse(event.body);
   const apiKey = process.env.GROQ_API_KEY;
 
-  // APIキーが読み込まれているか確認
-  console.log('APIキーの最初の10文字:', apiKey ? apiKey.substring(0, 10) : 'undefined');
-
   try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -23,10 +20,7 @@ exports.handler = async function (event) {
       })
     });
 
-    console.log('Groqのレスポンスステータス:', response.status);
-
     const data = await response.json();
-    console.log('Groqのレスポンス:', JSON.stringify(data).substring(0, 200));
 
     const text = data.choices[0].message.content;
 
@@ -35,7 +29,6 @@ exports.handler = async function (event) {
       body: JSON.stringify({ text })
     };
   } catch (err) {
-    console.log('エラー:', err.message);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: err.message })
