@@ -1,23 +1,45 @@
 // ============================================================
-// 課題ToDo アプリ - script.js (Phase 2)
+// 課題ToDo アプリ - script.js (Phase 3: Supabase連携)
 // ============================================================
 
 // ===== データ管理 =====
-let tasks    = JSON.parse(localStorage.getItem('kadai-tasks'))    || [];
+let tasks    = [];  // Supabaseから読み込んだタスクをここに保持
 let schedule = JSON.parse(localStorage.getItem('kadai-schedule')) || {};
 let currentFilter = 'すべて';
 
 // ===== アプリ起動時の処理 =====
-window.onload = function () {
+window.onload = async function () {
+  // 今日の日付をヘッダーに表示
   const today = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
   document.getElementById('today-date').textContent = today.toLocaleDateString('ja-JP', options);
 
+  // 締切日のデフォルト値を今日に設定
   document.getElementById('input-deadline').value = today.toISOString().split('T')[0];
 
+  // 保存済みの予定を読み込んで表示
   loadSchedule();
-  renderTasks();
+
+  // Supabaseからタスクを取得して表示
+  await fetchTasks();
 };
+
+// ===== Supabaseからタスクを取得する =====
+async function fetchTasks() {
+  const list = document.getElementById('task-list');
+  list.innerHTML = '<p class="empty-msg">読み込み中...</p>';
+
+  try {
+    const response = await fetch('/.netlify/functions/get-tasks');
+    const data = await response.json();
+    tasks = Array.isArray(data) ? data : [];
+  } catch (err) {
+    tasks = [];
+    alert('課題の読み込みに失敗しました。');
+  }
+
+  renderTasks();
+}
 
 // ===== 今週の予定：開閉トグル =====
 function toggleSchedule() {
@@ -32,7 +54,7 @@ function toggleSchedule() {
   }
 }
 
-// ===== 今週の予定を保存する =====
+// ===== 今週の予定を保存する（こちらは引き続きlocalStorageを使用） =====
 function saveSchedule() {
   schedule = {
     mon:       document.getElementById('schedule-mon').value,
@@ -110,13 +132,13 @@ ${scheduleText}
 
   try {
     const response = await fetch('/.netlify/functions/ai-advice', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ prompt })
-});
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
 
-const data = await response.json();
-const text = data.text;
+    const data = await response.json();
+    const text = data.text;
 
     resultEl.innerHTML = `
       <div class="ai-answer">
@@ -132,8 +154,8 @@ const text = data.text;
   btn.disabled = false;
 }
 
-// ===== タスクを追加する =====
-function addTask() {
+// ===== タスクを追加する（Supabaseに保存） =====
+async function addTask() {
   const titleInput = document.getElementById('input-title');
   const title = titleInput.value.trim();
 
@@ -148,40 +170,70 @@ function addTask() {
   const priority = document.getElementById('input-priority').value;
 
   const newTask = {
-    id:       Date.now(),
     title:    title,
-    subject:  subject,
-    deadline: deadline,
+    subject:  subject || null,
+    deadline: deadline || null,
     priority: priority,
     done:     false
   };
 
-  tasks.push(newTask);
-  saveTasks();
+  const btn = document.getElementById('btn-add');
+  btn.disabled = true;
 
-  titleInput.value = '';
-  document.getElementById('input-subject').value = '';
-  document.getElementById('input-priority').value = '中';
+  try {
+    await fetch('/.netlify/functions/save-task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTask)
+    });
 
-  renderTasks();
+    titleInput.value = '';
+    document.getElementById('input-subject').value = '';
+    document.getElementById('input-priority').value = '中';
+
+    await fetchTasks();
+  } catch (err) {
+    alert('課題の追加に失敗しました。');
+  }
+
+  btn.disabled = false;
 }
 
 // ===== タスクを完了/未完了に切り替える =====
-function toggleDone(id) {
+async function toggleDone(id) {
   const task = tasks.find(t => t.id === id);
-  if (task) {
-    task.done = !task.done;
-    saveTasks();
-    renderTasks();
+  if (!task) return;
+
+  const newDoneState = !task.done;
+
+  try {
+    await fetch('/.netlify/functions/update-task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, done: newDoneState })
+    });
+
+    await fetchTasks();
+  } catch (err) {
+    alert('更新に失敗しました。');
   }
 }
 
 // ===== タスクを削除する =====
-function deleteTask(id) {
+async function deleteTask(id) {
   if (!confirm('この課題を削除しますか？')) return;
-  tasks = tasks.filter(t => t.id !== id);
-  saveTasks();
-  renderTasks();
+
+  try {
+    await fetch('/.netlify/functions/delete-task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+
+    await fetchTasks();
+  } catch (err) {
+    alert('削除に失敗しました。');
+  }
 }
 
 // ===== フィルタリング =====
@@ -288,11 +340,6 @@ function renderTasks() {
 
     list.appendChild(card);
   });
-}
-
-// ===== localStorageへ保存 =====
-function saveTasks() {
-  localStorage.setItem('kadai-tasks', JSON.stringify(tasks));
 }
 
 // ===== XSS対策 =====
