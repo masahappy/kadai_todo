@@ -276,9 +276,14 @@ async function toggleDone(id) {
   const newDoneState = !task.done;
 
   try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
     await fetch('/.netlify/functions/update-task', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
       body: JSON.stringify({ id, done: newDoneState })
     });
 
@@ -293,9 +298,14 @@ async function deleteTask(id) {
   if (!confirm('この課題を削除しますか？')) return;
 
   try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
     await fetch('/.netlify/functions/delete-task', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
       body: JSON.stringify({ id })
     });
 
