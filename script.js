@@ -245,9 +245,14 @@ async function addTask() {
   btn.disabled = true;
 
   try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
     await fetch('/.netlify/functions/save-task', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
       body: JSON.stringify(newTask)
     });
 
