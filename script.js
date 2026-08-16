@@ -3,25 +3,82 @@
 // ============================================================
 
 // ===== データ管理 =====
+// ===== Supabaseクライアントの初期化 =====
+const SUPABASE_URL = 'https://cfhsjszynwtcaqifylsc.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_BcCHyZatGpZF8ok00ATkHg_6sgxmEsc';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let tasks    = [];  // Supabaseから読み込んだタスクをここに保持
 let schedule = JSON.parse(localStorage.getItem('kadai-schedule')) || {};
 let currentFilter = 'すべて';
 
 // ===== アプリ起動時の処理 =====
+// ===== サインアップ =====
+async function handleSignup() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errorEl = document.getElementById('auth-error');
+
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
+  if (error) {
+    errorEl.textContent = error.message;
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  errorEl.style.display = 'none';
+  alert('登録できました。そのままログインしてください。');
+}
+
+// ===== ログイン =====
+async function handleLogin() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errorEl = document.getElementById('auth-error');
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    errorEl.textContent = error.message;
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  errorEl.style.display = 'none';
+  showApp();
+}
+
+// ===== ログアウト =====
+async function handleLogout() {
+  await supabaseClient.auth.signOut();
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+// ===== ログイン済みならタスク画面を表示、そうでなければログイン画面を表示 =====
+async function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+  await fetchTasks();
+}
 window.onload = async function () {
-  // 今日の日付をヘッダーに表示
   const today = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
   document.getElementById('today-date').textContent = today.toLocaleDateString('ja-JP', options);
-
-  // 締切日のデフォルト値を今日に設定
   document.getElementById('input-deadline').value = today.toISOString().split('T')[0];
 
-  // 保存済みの予定を読み込んで表示
   loadSchedule();
 
-  // Supabaseからタスクを取得して表示
-  await fetchTasks();
+  // ログイン状態を確認
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    // ログイン済みならタスク画面を表示
+    showApp();
+  } else {
+    // 未ログインならログイン画面を表示したまま
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
 };
 
 // ===== Supabaseからタスクを取得する =====
@@ -30,7 +87,14 @@ async function fetchTasks() {
   list.innerHTML = '<p class="empty-msg">読み込み中...</p>';
 
   try {
-    const response = await fetch('/.netlify/functions/get-tasks');
+    // 今ログインしている人の証明書(トークン)を取得
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    const response = await fetch('/.netlify/functions/get-tasks', {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    });
     const data = await response.json();
     tasks = Array.isArray(data) ? data : [];
   } catch (err) {

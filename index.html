@@ -5,14 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>課題ToDo</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-  <div class="app">
+  <div id="auth-screen">
+  <div class="auth-box">
+    <h1>📚 課題ToDo</h1>
+    <p class="section-desc">ログインまたは新規登録してください</p>
+
+    <input type="email" id="auth-email" placeholder="メールアドレス">
+    <input type="password" id="auth-password" placeholder="パスワード（6文字以上）">
+
+    <button id="btn-login" onclick="handleLogin()">ログイン</button>
+    <button id="btn-signup" onclick="handleSignup()">新規登録</button>
+
+    <p id="auth-error" class="auth-error" style="display:none"></p>
+  </div>
+</div>
+
+  <div class="app" id="main-app" style="display:none">
     <header class="app-header">
       <div class="header-top">
         <h1>📚 課題ToDo</h1>
         <span id="today-date" class="today"></span>
+        <button id="btn-logout" onclick="handleLogout()">ログアウト</button>
       </div>
       <div class="stats">
         <div class="stat-card">
