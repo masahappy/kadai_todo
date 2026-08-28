@@ -59,6 +59,7 @@ async function handleLogout() {
 async function showApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('main-app').style.display = 'block';
+  await loadSchedule();
   await fetchTasks();
 }
 window.onload = async function () {
@@ -67,7 +68,6 @@ window.onload = async function () {
   document.getElementById('today-date').textContent = today.toLocaleDateString('ja-JP', options);
   document.getElementById('input-deadline').value = today.toISOString().split('T')[0];
 
-  loadSchedule();
 
   // ログイン状態を確認
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -118,8 +118,8 @@ function toggleSchedule() {
   }
 }
 
-// ===== 今週の予定を保存する（こちらは引き続きlocalStorageを使用） =====
-function saveSchedule() {
+// ===== 今週の予定を保存する（Supabaseに保存） =====
+async function saveSchedule() {
   schedule = {
     mon:       document.getElementById('schedule-mon').value,
     tue:       document.getElementById('schedule-tue').value,
@@ -130,18 +130,54 @@ function saveSchedule() {
     sun:       document.getElementById('schedule-sun').value,
     condition: document.getElementById('schedule-condition').value,
   };
-  localStorage.setItem('kadai-schedule', JSON.stringify(schedule));
-  alert('予定を保存しました！');
+
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    await fetch('/.netlify/functions/save-schedule', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify(schedule)
+    });
+
+    alert('予定を保存しました！');
+  } catch (err) {
+    alert('予定の保存に失敗しました。');
+  }
 }
 
-// ===== 保存済みの予定を入力欄に反映する =====
-function loadSchedule() {
-  if (!schedule) return;
-  const fields = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'condition'];
-  fields.forEach(key => {
-    const el = document.getElementById(`schedule-${key}`);
-    if (el && schedule[key]) el.value = schedule[key];
-  });
+// ===== 今週の予定を保存する（Supabaseに保存） =====
+async function saveSchedule() {
+  schedule = {
+    mon:       document.getElementById('schedule-mon').value,
+    tue:       document.getElementById('schedule-tue').value,
+    wed:       document.getElementById('schedule-wed').value,
+    thu:       document.getElementById('schedule-thu').value,
+    fri:       document.getElementById('schedule-fri').value,
+    sat:       document.getElementById('schedule-sat').value,
+    sun:       document.getElementById('schedule-sun').value,
+    condition: document.getElementById('schedule-condition').value,
+  };
+
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    await fetch('/.netlify/functions/save-schedule', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify(schedule)
+    });
+
+    alert('予定を保存しました！');
+  } catch (err) {
+    alert('予定の保存に失敗しました。');
+  }
 }
 
 // ===== AIアドバイスを取得する =====
