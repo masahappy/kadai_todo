@@ -149,35 +149,26 @@ async function saveSchedule() {
   }
 }
 
-// ===== 今週の予定を保存する（Supabaseに保存） =====
-async function saveSchedule() {
-  schedule = {
-    mon:       document.getElementById('schedule-mon').value,
-    tue:       document.getElementById('schedule-tue').value,
-    wed:       document.getElementById('schedule-wed').value,
-    thu:       document.getElementById('schedule-thu').value,
-    fri:       document.getElementById('schedule-fri').value,
-    sat:       document.getElementById('schedule-sat').value,
-    sun:       document.getElementById('schedule-sun').value,
-    condition: document.getElementById('schedule-condition').value,
-  };
-
+// ===== 保存済みの予定をSupabaseから取得して入力欄に反映する =====
+async function loadSchedule() {
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
-    await fetch('/.netlify/functions/save-schedule', {
-      method: 'POST',
+    const response = await fetch('/.netlify/functions/get-schedule', {
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.access_token}`
-      },
-      body: JSON.stringify(schedule)
+      }
     });
-
-    alert('予定を保存しました！');
+    schedule = await response.json();
   } catch (err) {
-    alert('予定の保存に失敗しました。');
+    schedule = {};
   }
+
+  const fields = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'condition'];
+  fields.forEach(key => {
+    const el = document.getElementById(`schedule-${key}`);
+    if (el && schedule[key]) el.value = schedule[key];
+  });
 }
 
 // ===== AIアドバイスを取得する =====
