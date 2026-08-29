@@ -47,6 +47,22 @@
       </div>
     </header>
 
+    <!-- 今日のタスク（1dayモード） -->
+    <section class="today-section">
+      <div class="section-header" onclick="toggleTodayView()">
+        <h2>🗓️ 今日のタスク</h2>
+        <span id="today-toggle-icon">▼</span>
+      </div>
+      <div id="today-body">
+        <div id="today-timeline"></div>
+        <div class="today-anytime">
+          <h3>⏳ いつでもやる</h3>
+          <div id="today-anytime-list"></div>
+        </div>
+        <p id="today-empty-msg" class="empty-msg" style="display:none">今日のタスクはありません 🎉</p>
+      </div>
+    </section>
+
     <!-- 課題追加フォーム -->
     <section class="add-section">
       <h2>課題を追加</h2>
@@ -62,6 +78,10 @@
             <option value="高">優先度：高</option>
             <option value="低">優先度：低</option>
           </select>
+        </div>
+        <div class="form-row">
+          <input type="date" id="input-due-date" title="実施予定日（今日のタスクに表示する日付）">
+          <input type="time" id="input-start-time" title="開始時刻（未入力なら「いつでもやる」扱い）">
         </div>
         <button id="btn-add" onclick="addTask()">＋ 追加する</button>
       </div>

@@ -259,13 +259,17 @@ async function addTask() {
   const subject  = document.getElementById('input-subject').value.trim();
   const deadline = document.getElementById('input-deadline').value;
   const priority = document.getElementById('input-priority').value;
+  const dueDate   = document.getElementById('input-due-date').value;
+  const startTime = document.getElementById('input-start-time').value;
 
   const newTask = {
-    title:    title,
-    subject:  subject || null,
-    deadline: deadline || null,
-    priority: priority,
-    done:     false
+    title:      title,
+    subject:    subject || null,
+    deadline:   deadline || null,
+    priority:   priority,
+    done:       false,
+    due_date:   dueDate || null,
+    start_time: startTime || null
   };
 
   const btn = document.getElementById('btn-add');
@@ -291,6 +295,8 @@ async function addTask() {
     titleInput.value = '';
     document.getElementById('input-subject').value = '';
     document.getElementById('input-priority').value = '中';
+    document.getElementById('input-due-date').value = '';
+    document.getElementById('input-start-time').value = '';
 
     await fetchTasks();
   } catch (err) {
@@ -461,7 +467,78 @@ function renderTasks() {
 
     list.appendChild(card);
   });
+  renderTodayView();
 }
+
+
+// ===== 今日のタスク：開閉トグル =====
+function toggleTodayView() {
+  const body = document.getElementById('today-body');
+  const icon = document.getElementById('today-toggle-icon');
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    icon.textContent = '▼';
+  } else {
+    body.style.display = 'none';
+    icon.textContent = '▶';
+  }
+}
+
+// ===== 時刻を読みやすい形式に変換（例: 09:00） =====
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  return timeStr.slice(0, 5); // "09:00:00" -> "09:00"
+}
+
+// ===== 今日のタスクビューを描画する =====
+function renderTodayView() {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayTasks = tasks.filter(t => t.due_date === todayStr && !t.done);
+
+  const timeline    = document.getElementById('today-timeline');
+  const anytimeList = document.getElementById('today-anytime-list');
+  const emptyMsg    = document.getElementById('today-empty-msg');
+
+  timeline.innerHTML    = '';
+  anytimeList.innerHTML = '';
+
+  if (todayTasks.length === 0) {
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+
+  const timed   = todayTasks.filter(t => t.start_time).sort((a, b) => a.start_time.localeCompare(b.start_time));
+  const anytime = todayTasks.filter(t => !t.start_time);
+
+  timed.forEach(task => {
+    const item = document.createElement('div');
+    item.className = 'timeline-item';
+    item.innerHTML = `
+      <span class="timeline-time">${formatTime(task.start_time)}</span>
+      <div class="timeline-content">
+        <span class="task-title">${escapeHtml(task.title)}</span>
+        ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
+      </div>
+      <button class="check-btn" onclick="toggleDone(${task.id})" title="完了にする"></button>
+    `;
+    timeline.appendChild(item);
+  });
+
+  anytime.forEach(task => {
+    const item = document.createElement('div');
+    item.className = 'anytime-item';
+    item.innerHTML = `
+      <div class="task-info">
+        <span class="task-title">${escapeHtml(task.title)}</span>
+        ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
+      </div>
+      <button class="check-btn" onclick="toggleDone(${task.id})" title="完了にする"></button>
+    `;
+    anytimeList.appendChild(item);
+  });
+}
+
 
 // ===== XSS対策 =====
 function escapeHtml(str) {
