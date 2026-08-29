@@ -274,7 +274,7 @@ async function addTask() {
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
-    await fetch('/.netlify/functions/save-task', {
+    const response = await fetch('/.netlify/functions/save-task', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -282,6 +282,11 @@ async function addTask() {
       },
       body: JSON.stringify(newTask)
     });
+
+    if (!response.ok) {
+      alert('課題の追加に失敗しました。');
+      return;
+    }
 
     titleInput.value = '';
     document.getElementById('input-subject').value = '';
@@ -305,7 +310,7 @@ async function toggleDone(id) {
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
-    await fetch('/.netlify/functions/update-task', {
+    const response = await fetch('/.netlify/functions/update-task', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -313,6 +318,11 @@ async function toggleDone(id) {
       },
       body: JSON.stringify({ id, done: newDoneState })
     });
+
+    if (!response.ok) {
+      alert('更新に失敗しました。');
+      return;
+    }
 
     await fetchTasks();
   } catch (err) {
@@ -327,7 +337,7 @@ async function deleteTask(id) {
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
-    await fetch('/.netlify/functions/delete-task', {
+    const response = await fetch('/.netlify/functions/delete-task', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -335,6 +345,11 @@ async function deleteTask(id) {
       },
       body: JSON.stringify({ id })
     });
+
+    if (!response.ok) {
+      alert('削除に失敗しました。');
+      return;
+    }
 
     await fetchTasks();
   } catch (err) {
