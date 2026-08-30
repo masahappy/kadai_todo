@@ -10,6 +10,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 let tasks    = [];  // Supabaseから読み込んだタスクをここに保持
 let schedule = JSON.parse(localStorage.getItem('kadai-schedule')) || {};
 let currentFilter = 'すべて';
+let currentMode = null;  // 'day' または 'week'
 
 // ===== アプリ起動時の処理 =====
 // ===== サインアップ =====
@@ -58,10 +59,29 @@ async function handleLogout() {
 // ===== ログイン済みならタスク画面を表示、そうでなければログイン画面を表示 =====
 async function showApp() {
   document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('mode-select-screen').style.display = 'flex';
+}
+
+// ===== モードを選択してメイン画面を表示する =====
+async function selectMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-select-screen').style.display = 'none';
   document.getElementById('main-app').style.display = 'block';
+
+  document.getElementById('day-mode-content').style.display  = (mode === 'day')  ? 'block' : 'none';
+  document.getElementById('week-mode-content').style.display = (mode === 'week') ? 'block' : 'none';
+
   await loadSchedule();
   await fetchTasks();
 }
+
+// ===== モード選択画面に戻る =====
+function backToModeSelect() {
+  currentMode = null;
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('mode-select-screen').style.display = 'flex';
+}
+
 window.onload = async function () {
   const today = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
@@ -259,7 +279,6 @@ async function addTask() {
   const subject  = document.getElementById('input-subject').value.trim();
   const deadline = document.getElementById('input-deadline').value;
   const priority = document.getElementById('input-priority').value;
-  const dueDate   = document.getElementById('input-due-date').value;
   const startTime = document.getElementById('input-start-time').value;
 
   const newTask = {
@@ -268,8 +287,8 @@ async function addTask() {
     deadline:   deadline || null,
     priority:   priority,
     done:       false,
-    due_date:   dueDate || null,
-    start_time: startTime || null
+    start_time: startTime || null,
+    mode:       currentMode
   };
 
   const btn = document.getElementById('btn-add');
@@ -295,7 +314,6 @@ async function addTask() {
     titleInput.value = '';
     document.getElementById('input-subject').value = '';
     document.getElementById('input-priority').value = '中';
-    document.getElementById('input-due-date').value = '';
     document.getElementById('input-start-time').value = '';
 
     await fetchTasks();
@@ -403,6 +421,7 @@ function formatDeadline(deadlineStr) {
 
 // ===== 統計を更新する =====
 function updateStats() {
+  const modeTasks = tasks.filter(t => t.mode === currentMode);
   const undone = tasks.filter(t => !t.done).length;
   const urgent = tasks.filter(t => !t.done && isUrgent(t.deadline)).length;
   const done   = tasks.filter(t => t.done).length;
@@ -418,6 +437,8 @@ function renderTasks() {
 
   const list     = document.getElementById('task-list');
   const emptyMsg = document.getElementById('empty-msg');
+
+  const weekTasks = tasks.filter(t => t.mode === 'week');
 
   let filtered;
   if      (currentFilter === 'すべて')   filtered = tasks;
@@ -492,7 +513,6 @@ function formatTime(timeStr) {
 
 // ===== 今日のタスクビューを描画する =====
 function renderTodayView() {
-  const todayStr = new Date().toISOString().split('T')[0];
   const todayTasks = tasks.filter(t => t.due_date === todayStr && !t.done);
 
   const timeline    = document.getElementById('today-timeline');
