@@ -422,9 +422,9 @@ function formatDeadline(deadlineStr) {
 // ===== 統計を更新する =====
 function updateStats() {
   const modeTasks = tasks.filter(t => t.mode === currentMode);
-  const undone = tasks.filter(t => !t.done).length;
-  const urgent = tasks.filter(t => !t.done && isUrgent(t.deadline)).length;
-  const done   = tasks.filter(t => t.done).length;
+  const undone = modeTasks.filter(t => !t.done).length;
+  const urgent = modeTasks.filter(t => !t.done && isUrgent(t.deadline)).length;
+  const done   = modeTasks.filter(t => t.done).length;
 
   document.getElementById('stat-total').textContent  = undone;
   document.getElementById('stat-urgent').textContent = urgent;
@@ -441,10 +441,10 @@ function renderTasks() {
   const weekTasks = tasks.filter(t => t.mode === 'week');
 
   let filtered;
-  if      (currentFilter === 'すべて')   filtered = tasks;
-  else if (currentFilter === '未完了')   filtered = tasks.filter(t => !t.done);
-  else if (currentFilter === '完了済み') filtered = tasks.filter(t => t.done);
-  else                                   filtered = tasks;
+  if      (currentFilter === 'すべて')   filtered = weekTasks;
+  else if (currentFilter === '未完了')   filtered = weekTasks.filter(t => !t.done);
+  else if (currentFilter === '完了済み') filtered = weekTasks.filter(t => t.done);
+  else                                   filtered = weekTasks;
 
   const sorted = [...filtered].sort((a, b) => {
     if (a.done !== b.done) return a.done ? 1 : -1;
