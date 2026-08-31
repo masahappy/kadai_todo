@@ -513,7 +513,7 @@ function formatTime(timeStr) {
 
 // ===== 今日のタスクビューを描画する =====
 function renderTodayView() {
-  const todayTasks = tasks.filter(t => t.due_date === todayStr && !t.done);
+  const todayTasks = tasks.filter(t => t.mode === 'day' && !t.done);
 
   const timeline    = document.getElementById('today-timeline');
   const anytimeList = document.getElementById('today-anytime-list');
