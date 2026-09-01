@@ -618,7 +618,7 @@ select {
 }
 
 /* ===== タイムスケジュール（時間軸） ===== */
-.timeline-day {
+#today-timeline {
   position: relative;
   height: 1440px; /* 24時間 × 60px */
   margin-top: 1rem;
