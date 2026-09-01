@@ -472,3 +472,55 @@ select {
   background: #edf2f7;
   color: #4a5568;
 }
+
+/* ===== モード選択画面 ===== */
+#mode-select-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#mode-select-screen .auth-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+}
+
+#mode-select-screen h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 0.5rem;
+}
+
+#mode-select-screen .section-desc {
+  margin: 0 0 1.5rem;
+}
+
+#mode-select-screen button {
+  display: block;
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+#mode-select-screen button:active { transform: scale(0.98); }
+
+#mode-select-screen button:nth-of-type(1) {
+  background: linear-gradient(135deg, #3182ce, #6b46c1);
+  color: #fff;
+}
+
+#mode
