@@ -511,39 +511,75 @@ function formatTime(timeStr) {
   return timeStr.slice(0, 5); // "09:00:00" -> "09:00"
 }
 
+const HOUR_HEIGHT = 60; // 1時間あたりの高さ(px)
+
+// ===== 時間軸の背景（0時〜24時の目盛り）を作る =====
+function buildHourGrid() {
+  const timeline = document.getElementById('today-timeline');
+  timeline.innerHTML = '';
+
+  for (let h = 0; h < 24; h++) {
+    const row = document.createElement('div');
+    row.className = 'hour-row';
+    row.style.top = `${h * HOUR_HEIGHT}px`;
+    row.innerHTML = `
+      <span class="hour-label">${String(h).padStart(2, '0')}:00</span>
+      <span class="hour-line"></span>
+    `;
+    timeline.appendChild(row);
+  }
+}
+
+// ===== 現在時刻の赤い線を表示する =====
+function renderCurrentTimeLine() {
+  const timeline = document.getElementById('today-timeline');
+  const now = new Date();
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const top = (minutes / 60) * HOUR_HEIGHT;
+
+  const line = document.createElement('div');
+  line.className = 'current-time-line';
+  line.style.top = `${top}px`;
+  timeline.appendChild(line);
+
+  return top;
+}
+
 // ===== 今日のタスクビューを描画する =====
 function renderTodayView() {
   const todayTasks = tasks.filter(t => t.mode === 'day' && !t.done);
 
-  const timeline    = document.getElementById('today-timeline');
-  const anytimeList = document.getElementById('today-anytime-list');
-  const emptyMsg    = document.getElementById('today-empty-msg');
+  buildHourGrid();
 
-  timeline.innerHTML    = '';
+  const timeline     = document.getElementById('today-timeline');
+  const anytimeList  = document.getElementById('today-anytime-list');
+  const emptyMsg     = document.getElementById('today-empty-msg');
+
   anytimeList.innerHTML = '';
+  emptyMsg.style.display = todayTasks.length === 0 ? 'block' : 'none';
 
-  if (todayTasks.length === 0) {
-    emptyMsg.style.display = 'block';
-    return;
-  }
-  emptyMsg.style.display = 'none';
-
-  const timed   = todayTasks.filter(t => t.start_time).sort((a, b) => a.start_time.localeCompare(b.start_time));
+  const timed   = todayTasks.filter(t => t.start_time);
   const anytime = todayTasks.filter(t => !t.start_time);
 
   timed.forEach(task => {
+    const [h, m] = task.start_time.split(':').map(Number);
+    const top = ((h * 60 + m) / 60) * HOUR_HEIGHT;
+
     const item = document.createElement('div');
-    item.className = 'timeline-item';
+    item.className = 'timeline-task';
+    item.style.top = `${top}px`;
     item.innerHTML = `
-      <span class="timeline-time">${formatTime(task.start_time)}</span>
+      <button class="check-btn" onclick="toggleDone(${task.id})" title="完了にする"></button>
       <div class="timeline-content">
+        <span class="timeline-time">${formatTime(task.start_time)}</span>
         <span class="task-title">${escapeHtml(task.title)}</span>
         ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
       </div>
-      <button class="check-btn" onclick="toggleDone(${task.id})" title="完了にする"></button>
     `;
     timeline.appendChild(item);
   });
+
+  const nowTop = renderCurrentTimeLine();
 
   anytime.forEach(task => {
     const item = document.createElement('div');
@@ -557,6 +593,9 @@ function renderTodayView() {
     `;
     anytimeList.appendChild(item);
   });
+
+  // 現在時刻の少し上まで自動スクロール
+  timeline.scrollTop = Math.max(0, nowTop - 100);
 }
 
 

@@ -523,4 +523,164 @@ select {
   color: #fff;
 }
 
-#mode
+#mode-select-screen button:nth-of-type(2) {
+  background: #f7fafc;
+  color: #2d3748;
+  border: 1px solid #e2e8f0;
+}
+
+#mode-select-screen button:hover { opacity: 0.9; }
+
+/* ===== モード切替ボタン ===== */
+#btn-switch-mode {
+  height: 34px;
+  padding: 0 12px;
+  background: #f7fafc;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#btn-switch-mode:hover { background: #ebf8ff; color: #3182ce; }
+
+/* ===== 今日のタスクセクション ===== */
+.today-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+#today-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #3182ce;
+  border-radius: 10px;
+  animation: fadeIn 0.2s ease;
+}
+
+.timeline-time {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #3182ce;
+  min-width: 48px;
+  flex-shrink: 0;
+}
+
+.timeline-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.today-anytime {
+  margin-top: 1.5rem;
+}
+
+.today-anytime h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #718096;
+  margin-bottom: 0.5rem;
+}
+
+#today-anytime-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.anytime-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px dashed #e2e8f0;
+  border-radius: 10px;
+  animation: fadeIn 0.2s ease;
+}
+
+/* ===== タイムスケジュール（時間軸） ===== */
+.timeline-day {
+  position: relative;
+  height: 1440px; /* 24時間 × 60px */
+  margin-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.hour-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 60px;
+  border-bottom: 1px solid #f0f4f8;
+  display: flex;
+}
+
+.hour-label {
+  width: 52px;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: #a0aec0;
+  padding: 2px 0 0 2px;
+  box-sizing: border-box;
+}
+
+.hour-line {
+  flex: 1;
+}
+
+.timeline-task {
+  position: absolute;
+  left: 58px;
+  right: 8px;
+  min-height: 44px;
+  background: #ebf8ff;
+  border-left: 3px solid #3182ce;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  z-index: 2;
+}
+
+.current-time-line {
+  position: absolute;
+  left: 52px;
+  right: 0;
+  height: 2px;
+  background: #e53e3e;
+  z-index: 3;
+}
+
+.current-time-line::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e53e3e;
+}
