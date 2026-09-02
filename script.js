@@ -594,6 +594,28 @@ function renderTodayView() {
     anytimeList.appendChild(item);
   });
 
+  // 完了済みタスクを表示
+  const doneTasks = tasks.filter(t => t.mode === 'day' && t.done);
+  const doneList  = document.getElementById('today-done-list');
+  const doneEmpty = document.getElementById('today-done-empty');
+
+  doneList.innerHTML = '';
+  doneEmpty.style.display = doneTasks.length === 0 ? 'block' : 'none';
+
+  doneTasks.forEach(task => {
+    const item = document.createElement('div');
+    item.className = 'today-done-item';
+    item.innerHTML = `
+      <button class="check-btn checked" onclick="toggleDone(${task.id})" title="未完了に戻す">✓</button>
+      <div class="task-info">
+        <span class="task-title">${escapeHtml(task.title)}</span>
+        ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
+      </div>
+      <button class="delete-btn" onclick="deleteTask(${task.id})" title="削除">🗑</button>
+    `;
+    doneList.appendChild(item);
+  });
+
   // 現在時刻の少し上まで自動スクロール
   timeline.scrollTop = Math.max(0, nowTop - 100);
 }
