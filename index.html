@@ -72,7 +72,7 @@
             <div id="today-anytime-list"></div>
           </div>
           <p id="today-empty-msg" class="empty-msg" style="display:none">今日のタスクはありません 🎉</p>
-          
+
           <div class="today-done">
             <h3>✅ 完了済み</h3>
             <div id="today-done-list"></div>
@@ -100,6 +100,11 @@
         </div>
         <div class="form-row">
           <input type="time" id="input-start-time" title="開始時刻（未入力なら「いつでもやる」扱い）">
+          <input type="time" id="input-end-time" title="終了時刻">
+          <label class="checkbox-label">
+            <input type="checkbox" id="input-end-time-unknown" onchange="toggleEndTimeInput()">
+            終了未定
+          </label>
         </div>
         <button id="btn-add" onclick="addTask()">＋ 追加する</button>
       </div>

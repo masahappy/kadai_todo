@@ -125,6 +125,19 @@ async function fetchTasks() {
   renderTasks();
 }
 
+// ===== 「終了未定」チェックボックスの切り替え =====
+function toggleEndTimeInput() {
+  const checkbox = document.getElementById('input-end-time-unknown');
+  const endTimeInput = document.getElementById('input-end-time');
+
+  if (checkbox.checked) {
+    endTimeInput.value = '';
+    endTimeInput.disabled = true;
+  } else {
+    endTimeInput.disabled = false;
+  }
+}
+
 // ===== 今週の予定：開閉トグル =====
 function toggleSchedule() {
   const body = document.getElementById('schedule-body');
@@ -280,6 +293,7 @@ async function addTask() {
   const deadline = document.getElementById('input-deadline').value;
   const priority = document.getElementById('input-priority').value;
   const startTime = document.getElementById('input-start-time').value;
+  const endTime   = document.getElementById('input-end-time').value;
 
   const newTask = {
     title:      title,
@@ -288,6 +302,7 @@ async function addTask() {
     priority:   priority,
     done:       false,
     start_time: startTime || null,
+    end_time:   endTime || null,
     mode:       currentMode
   };
 
@@ -315,6 +330,9 @@ async function addTask() {
     document.getElementById('input-subject').value = '';
     document.getElementById('input-priority').value = '中';
     document.getElementById('input-start-time').value = '';
+    document.getElementById('input-end-time').value = '';
+    document.getElementById('input-end-time-unknown').checked = false;
+    document.getElementById('input-end-time').disabled = false;
 
     await fetchTasks();
   } catch (err) {
@@ -565,15 +583,33 @@ function renderTodayView() {
     const [h, m] = task.start_time.split(':').map(Number);
     const top = ((h * 60 + m) / 60) * HOUR_HEIGHT;
 
+    let height = 44; // デフォルトの高さ（終了時刻未定の場合）
+    let timeLabel = formatTime(task.start_time);
+    let undeterminedTag = '';
+
+    if (task.end_time) {
+      const [eh, em] = task.end_time.split(':').map(Number);
+      const durationMinutes = (eh * 60 + em) - (h * 60 + m);
+      if (durationMinutes > 0) {
+        height = (durationMinutes / 60) * HOUR_HEIGHT;
+        height = Math.max(height, 30); // 最低限の高さは確保
+      }
+      timeLabel = `${formatTime(task.start_time)} 〜 ${formatTime(task.end_time)}`;
+    } else {
+      undeterminedTag = '<span class="undetermined-tag">終了未定</span>';
+    }
+
     const item = document.createElement('div');
     item.className = 'timeline-task';
     item.style.top = `${top}px`;
+    item.style.height = `${height}px`;
     item.innerHTML = `
       <button class="check-btn" onclick="toggleDone(${task.id})" title="完了にする"></button>
       <div class="timeline-content">
-        <span class="timeline-time">${formatTime(task.start_time)}</span>
+        <span class="timeline-time">${timeLabel}</span>
         <span class="task-title">${escapeHtml(task.title)}</span>
         ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
+        ${undeterminedTag}
       </div>
     `;
     timeline.appendChild(item);
