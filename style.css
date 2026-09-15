@@ -651,8 +651,6 @@ select {
 
 .timeline-task {
   position: absolute;
-  left: 58px;
-  right: 8px;
   min-height: 44px;
   background: #ebf8ff;
   border-left: 3px solid #3182ce;
@@ -663,6 +661,7 @@ select {
   gap: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   z-index: 2;
+  overflow: hidden;
 }
 
 .current-time-line {

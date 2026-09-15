@@ -510,6 +510,53 @@ function renderTasks() {
 }
 
 
+// ===== 重なっているタスクをグループ化し、列を割り当てる =====
+function layoutTimedTasks(items) {
+  items.sort((a, b) => a.start - b.start);
+
+  // 重なっているタスク同士を1つの「クラスター」にまとめる
+  const clusters = [];
+  let cluster = [];
+  let clusterEnd = -1;
+
+  items.forEach(item => {
+    if (cluster.length === 0 || item.start < clusterEnd) {
+      cluster.push(item);
+      clusterEnd = Math.max(clusterEnd, item.end);
+    } else {
+      clusters.push(cluster);
+      cluster = [item];
+      clusterEnd = item.end;
+    }
+  });
+  if (cluster.length) clusters.push(cluster);
+
+  // クラスターごとに、何列に分けるか・どの列に置くかを決める
+  const positioned = [];
+  clusters.forEach(cluster => {
+    const columns = []; // 各列の「最後のタスクの終了時刻」を記録
+    cluster.forEach(item => {
+      let placed = false;
+      for (let c = 0; c < columns.length; c++) {
+        if (columns[c] <= item.start) {
+          columns[c] = item.end;
+          item.col = c;
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        item.col = columns.length;
+        columns.push(item.end);
+      }
+    });
+    const totalCols = columns.length;
+    cluster.forEach(item => positioned.push({ ...item, totalCols }));
+  });
+
+  return positioned;
+}
+
 // ===== 今日のタスク：開閉トグル =====
 function toggleTodayView() {
   const body = document.getElementById('today-body');
