@@ -626,30 +626,58 @@ function renderTodayView() {
   const timed   = todayTasks.filter(t => t.start_time);
   const anytime = todayTasks.filter(t => !t.start_time);
 
-  timed.forEach(task => {
-    const [h, m] = task.start_time.split(':').map(Number);
-    const top = ((h * 60 + m) / 60) * HOUR_HEIGHT;
+  // タスク配置用の専用レイヤーを作る（時間ラベルの右側の領域）
+  const layer = document.createElement('div');
+  layer.id = 'today-tasks-layer';
+  layer.style.position = 'absolute';
+  layer.style.top = '0';
+  layer.style.left = '58px';
+  layer.style.right = '8px';
+  layer.style.bottom = '0';
+  timeline.appendChild(layer);
 
-    let height = 44; // デフォルトの高さ（終了時刻未定の場合）
+  // 重なり計算のための下準備（開始・終了を分単位に変換）
+  const itemsForLayout = timed.map(task => {
+    const [h, m] = task.start_time.split(':').map(Number);
+    const startMin = h * 60 + m;
+    let endMin = startMin + 30; // 終了未定タスクは仮に30分とみなす（重なり判定のみに使用）
+    if (task.end_time) {
+      const [eh, em] = task.end_time.split(':').map(Number);
+      const realEnd = eh * 60 + em;
+      if (realEnd > startMin) endMin = realEnd;
+    }
+    return { task, start: startMin, end: endMin };
+  });
+
+  const laidOut = layoutTimedTasks(itemsForLayout);
+
+  laidOut.forEach(({ task, start, totalCols, col }) => {
+    const top = (start / 60) * HOUR_HEIGHT;
+
+    let height = 44;
     let timeLabel = formatTime(task.start_time);
     let undeterminedTag = '';
 
     if (task.end_time) {
       const [eh, em] = task.end_time.split(':').map(Number);
-      const durationMinutes = (eh * 60 + em) - (h * 60 + m);
+      const durationMinutes = (eh * 60 + em) - start;
       if (durationMinutes > 0) {
-        height = (durationMinutes / 60) * HOUR_HEIGHT;
-        height = Math.max(height, 30); // 最低限の高さは確保
+        height = Math.max((durationMinutes / 60) * HOUR_HEIGHT, 30);
       }
       timeLabel = `${formatTime(task.start_time)} 〜 ${formatTime(task.end_time)}`;
     } else {
       undeterminedTag = '<span class="undetermined-tag">終了未定</span>';
     }
 
+    const widthPercent = 100 / totalCols;
+    const leftPercent  = col * widthPercent;
+
     const item = document.createElement('div');
     item.className = 'timeline-task';
-    item.style.top = `${top}px`;
+    item.style.top    = `${top}px`;
     item.style.height = `${height}px`;
+    item.style.left   = `${leftPercent}%`;
+    item.style.width  = `calc(${widthPercent}% - 4px)`;
     item.innerHTML = `
       <button class="check-btn" onclick="toggleDone(${task.id})" title="完了にする"></button>
       <div class="timeline-content">
@@ -659,7 +687,7 @@ function renderTodayView() {
         ${undeterminedTag}
       </div>
     `;
-    timeline.appendChild(item);
+    layer.appendChild(item);
   });
 
   const nowTop = renderCurrentTimeLine();
