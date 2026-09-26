@@ -742,3 +742,30 @@ select {
   color: #a0aec0;
   font-style: italic;
 }
+
+.today-done-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.today-done-header h3 {
+  margin-bottom: 0;
+}
+
+#btn-clear-done {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #718096;
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+#btn-clear-done:hover {
+  border-color: #e53e3e;
+  color: #e53e3e;
+}

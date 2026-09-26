@@ -74,7 +74,10 @@
           <p id="today-empty-msg" class="empty-msg" style="display:none">今日のタスクはありません 🎉</p>
 
           <div class="today-done">
-            <h3>✅ 完了済み</h3>
+            <div class="today-done-header">
+              <h3>✅ 完了済み</h3>
+              <button id="btn-clear-done" onclick="clearDoneTasks()" style="display:none">まとめて削除</button>
+            </div>
             <div id="today-done-list"></div>
             <p id="today-done-empty" class="empty-msg" style="display:none">完了したタスクはありません</p>
           </div>

@@ -399,6 +399,33 @@ async function deleteTask(id) {
   }
 }
 
+// ===== 完了済みタスクをまとめて削除する =====
+async function clearDoneTasks() {
+  const doneTasks = tasks.filter(t => t.mode === 'day' && t.done);
+
+  if (doneTasks.length === 0) return;
+  if (!confirm(`完了済みの${doneTasks.length}件を削除しますか？`)) return;
+
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    await Promise.all(doneTasks.map(task =>
+      fetch('/.netlify/functions/delete-task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ id: task.id })
+      })
+    ));
+
+    await fetchTasks();
+  } catch (err) {
+    alert('削除に失敗しました。');
+  }
+}
+
 // ===== フィルタリング =====
 function filterBySubject(filter, clickedBtn) {
   currentFilter = filter;
@@ -712,6 +739,7 @@ function renderTodayView() {
 
   doneList.innerHTML = '';
   doneEmpty.style.display = doneTasks.length === 0 ? 'block' : 'none';
+  document.getElementById('btn-clear-done').style.display = doneTasks.length === 0 ? 'none' : 'inline-block';
 
   doneTasks.forEach(task => {
     const item = document.createElement('div');
