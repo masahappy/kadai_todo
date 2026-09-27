@@ -110,6 +110,7 @@ body {
  
 input[type="text"],
 input[type="date"],
+input[type="time"],
 select {
   height: 40px;
   border: 1px solid #e2e8f0;
@@ -120,6 +121,12 @@ select {
   background: #f7fafc;
   outline: none;
   transition: border-color 0.2s;
+  color-scheme: light;
+}
+
+input[type="time"] {
+  flex: 1;
+  min-width: 110px;
 }
  
 input[type="text"] {
