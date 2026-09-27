@@ -653,7 +653,8 @@ select {
   width: 52px;
   flex-shrink: 0;
   font-size: 0.72rem;
-  color: #a0aec0;
+  color: #1a202c;
+  font-weight: 600;
   padding: 2px 0 0 2px;
   box-sizing: border-box;
 }
