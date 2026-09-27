@@ -138,6 +138,23 @@ function toggleEndTimeInput() {
   }
 }
 
+// ===== 課題追加モーダルを開く =====
+function openAddModal() {
+  document.getElementById('add-modal-overlay').style.display = 'flex';
+}
+
+// ===== 課題追加モーダルを閉じる =====
+function closeAddModal() {
+  document.getElementById('add-modal-overlay').style.display = 'none';
+}
+
+// ===== モーダルの外側（黒い背景部分）をクリックしたら閉じる =====
+function closeAddModalIfOverlay(event) {
+  if (event.target.id === 'add-modal-overlay') {
+    closeAddModal();
+  }
+}
+
 // ===== 今週の予定：開閉トグル =====
 function toggleSchedule() {
   const body = document.getElementById('schedule-body');
@@ -333,6 +350,7 @@ async function addTask() {
     document.getElementById('input-end-time').value = '';
     document.getElementById('input-end-time-unknown').checked = false;
     document.getElementById('input-end-time').disabled = false;
+    closeAddModal();
 
     await fetchTasks();
   } catch (err) {
