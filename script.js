@@ -418,8 +418,8 @@ async function deleteTask(id) {
 }
 
 // ===== 完了済みタスクをまとめて削除する =====
-async function clearDoneTasks() {
-  const doneTasks = tasks.filter(t => t.mode === 'day' && t.done);
+async function clearDoneTasks(mode) {
+  const doneTasks = tasks.filter(t => t.mode === mode && t.done);
 
   if (doneTasks.length === 0) return;
   if (!confirm(`完了済みの${doneTasks.length}件を削除しますか？`)) return;

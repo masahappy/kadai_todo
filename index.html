@@ -76,7 +76,7 @@
           <div class="today-done">
             <div class="today-done-header">
               <h3>✅ 完了済み</h3>
-              <button id="btn-clear-done" onclick="clearDoneTasks()" style="display:none">まとめて削除</button>
+              <button id="btn-clear-done" onclick="clearDoneTasks('day')" style="display:none">まとめて削除</button>
             </div>
             <div id="today-done-list"></div>
             <p id="today-done-empty" class="empty-msg" style="display:none">完了したタスクはありません</p>
@@ -148,6 +148,10 @@
           <button class="tab active" onclick="filterBySubject('すべて', this)">すべて</button>
           <button class="tab" onclick="filterBySubject('未完了', this)">未完了</button>
           <button class="tab" onclick="filterBySubject('完了済み', this)">完了済み</button>
+        </div>
+
+        <div class="week-clear-row">
+          <button id="btn-clear-done-week" onclick="clearDoneTasks('week')" style="display:none">完了済みをまとめて削除</button>
         </div>
 
         <div id="task-list"></div>
