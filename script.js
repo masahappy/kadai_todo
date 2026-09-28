@@ -502,8 +502,11 @@ function renderTasks() {
   const emptyMsg = document.getElementById('empty-msg');
 
   const weekTasks = tasks.filter(t => t.mode === 'week');
+  const hasWeekDone = weekTasks.some(t => t.done);
+  document.getElementById('btn-clear-done-week').style.display = hasWeekDone ? 'inline-block' : 'none';
 
   let filtered;
+  
   if      (currentFilter === 'すべて')   filtered = weekTasks;
   else if (currentFilter === '未完了')   filtered = weekTasks.filter(t => !t.done);
   else if (currentFilter === '完了済み') filtered = weekTasks.filter(t => t.done);
