@@ -523,6 +523,7 @@ function renderTasks() {
 
   if (sorted.length === 0) {
     emptyMsg.style.display = 'block';
+    renderTodayView();
     return;
   }
   emptyMsg.style.display = 'none';
