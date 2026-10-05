@@ -904,3 +904,13 @@ select {
   font-size: 0.95rem;
   opacity: 0.6;
 }
+
+/* ネイティブの時計アイコンを非表示にする（独自アイコンのみ表示） */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 30px;
+  height: 100%;
+  cursor: pointer;
+}
