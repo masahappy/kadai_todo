@@ -882,3 +882,25 @@ select {
   border-color: #e53e3e;
   color: #e53e3e;
 }
+
+/* ===== 時刻入力：独自アイコン表示（LINE内蔵ブラウザ等でネイティブアイコンが見えない対策） ===== */
+.time-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 110px;
+}
+
+.time-input-wrap input[type="time"] {
+  width: 100%;
+  padding-right: 30px; /* アイコン分の余白 */
+}
+
+.time-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* タップは下の入力欄に通す */
+  font-size: 0.95rem;
+  opacity: 0.6;
+}

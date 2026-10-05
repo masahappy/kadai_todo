@@ -184,13 +184,19 @@
             </select>
           </div>
           <div class="form-row">
+          <div class="time-input-wrap">
             <input type="time" id="input-start-time" title="開始時刻（未入力なら「いつでもやる」扱い）">
-            <input type="time" id="input-end-time" title="終了時刻">
-            <label class="checkbox-label">
-              <input type="checkbox" id="input-end-time-unknown" onchange="toggleEndTimeInput()">
-              終了未定
-            </label>
+            <span class="time-icon">🕐</span>
           </div>
+          <div class="time-input-wrap">
+            <input type="time" id="input-end-time" title="終了時刻">
+            <span class="time-icon">🕐</span>
+          </div>
+          <label class="checkbox-label">
+            <input type="checkbox" id="input-end-time-unknown" onchange="toggleEndTimeInput()">
+            終了未定
+          </label>
+        </div>
           <button id="btn-add" onclick="addTask()">＋ 追加する</button>
         </div>
       </div>
