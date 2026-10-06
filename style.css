@@ -883,34 +883,33 @@ select {
   color: #e53e3e;
 }
 
-/* ===== 時刻入力：独自アイコン表示（LINE内蔵ブラウザ等でネイティブアイコンが見えない対策） ===== */
-.time-input-wrap {
-  position: relative;
-  flex: 1;
-  min-width: 110px;
+/* ===== 時刻選択プルダウン ===== */
+.time-select-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.time-input-wrap input[type="time"] {
-  width: 100%;
-  padding-right: 30px; /* アイコン分の余白 */
+.time-select-label {
+  font-size: 0.85rem;
+  color: #4a5568;
+  font-weight: 600;
+  min-width: 36px;
 }
 
-.time-icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none; /* タップは下の入力欄に通す */
-  font-size: 0.95rem;
-  opacity: 0.6;
-}
-
-/* ネイティブの時計アイコンを非表示にする（独自アイコンのみ表示） */
-input[type="time"]::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  position: absolute;
-  right: 0;
-  width: 30px;
-  height: 100%;
+.time-select-group select {
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 8px;
+  font-size: 0.9rem;
+  color: #2d3748;
+  background: #f7fafc;
+  outline: none;
   cursor: pointer;
+}
+
+.time-colon {
+  font-weight: 700;
+  color: #4a5568;
 }
