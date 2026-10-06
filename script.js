@@ -128,13 +128,17 @@ async function fetchTasks() {
 // ===== 「終了未定」チェックボックスの切り替え =====
 function toggleEndTimeInput() {
   const checkbox = document.getElementById('input-end-time-unknown');
-  const endTimeInput = document.getElementById('input-end-time');
+  const endHour   = document.getElementById('input-end-hour');
+  const endMinute = document.getElementById('input-end-minute');
 
   if (checkbox.checked) {
-    endTimeInput.value = '';
-    endTimeInput.disabled = true;
+    endHour.value = '';
+    endMinute.value = '00';
+    endHour.disabled = true;
+    endMinute.disabled = true;
   } else {
-    endTimeInput.disabled = false;
+    endHour.disabled = false;
+    endMinute.disabled = false;
   }
 }
 
@@ -309,8 +313,15 @@ async function addTask() {
   const subject  = document.getElementById('input-subject').value.trim();
   const deadline = document.getElementById('input-deadline').value;
   const priority = document.getElementById('input-priority').value;
-  const startTime = document.getElementById('input-start-time').value;
-  const endTime   = document.getElementById('input-end-time').value;
+
+  const startHour   = document.getElementById('input-start-hour').value;
+  const startMinute = document.getElementById('input-start-minute').value;
+  const startTime = startHour ? `${startHour}:${startMinute}` : null;
+
+  const endTimeUnknown = document.getElementById('input-end-time-unknown').checked;
+  const endHour   = document.getElementById('input-end-hour').value;
+  const endMinute = document.getElementById('input-end-minute').value;
+  const endTime = (!endTimeUnknown && endHour) ? `${endHour}:${endMinute}` : null;
 
   const newTask = {
     title:      title,
@@ -318,8 +329,8 @@ async function addTask() {
     deadline:   deadline || null,
     priority:   priority,
     done:       false,
-    start_time: startTime || null,
-    end_time:   endTime || null,
+    start_time: startTime,
+    end_time:   endTime,
     mode:       currentMode
   };
 
@@ -346,10 +357,13 @@ async function addTask() {
     titleInput.value = '';
     document.getElementById('input-subject').value = '';
     document.getElementById('input-priority').value = '中';
-    document.getElementById('input-start-time').value = '';
-    document.getElementById('input-end-time').value = '';
+    document.getElementById('input-start-hour').value = '';
+    document.getElementById('input-start-minute').value = '00';
+    document.getElementById('input-end-hour').value = '';
+    document.getElementById('input-end-minute').value = '00';
     document.getElementById('input-end-time-unknown').checked = false;
-    document.getElementById('input-end-time').disabled = false;
+    document.getElementById('input-end-hour').disabled = false;
+    document.getElementById('input-end-minute').disabled = false;
     closeAddModal();
 
     await fetchTasks();
