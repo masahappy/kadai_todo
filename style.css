@@ -1,3 +1,39 @@
+/* ===== デザイン変数 ===== */
+:root {
+  /* カラー */
+  --color-primary: #3182ce;
+  --color-primary-dark: #2b6cb0;
+  --color-accent: #6b46c1;
+  --color-text: #1a202c;
+  --color-text-sub: #4a5568;
+  --color-text-muted: #718096;
+  --color-text-faint: #a0aec0;
+  --color-border: #e2e8f0;
+  --color-bg: #f0f4f8;
+  --color-bg-soft: #f7fafc;
+  --color-success: #38a169;
+  --color-success-bg: #f0fff4;
+  --color-warn: #c05621;
+  --color-warn-bg: #fff5f0;
+  --color-danger: #e53e3e;
+
+  /* 余白スケール */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  /* 角丸 */
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* 影 */
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow-float: 0 4px 12px rgba(49, 130, 206, 0.4);
+}
+
 /* ===== リセット & 基本設定 ===== */
 * {
   box-sizing: border-box;
@@ -6,11 +42,12 @@
 }
  
 body {
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+  font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
   background: #f0f4f8;
   color: #1a202c;
   min-height: 100vh;
   padding: 2rem 1rem;
+  letter-spacing: 0.01em;
 }
  
 /* ===== アプリ全体のレイアウト ===== */
@@ -912,4 +949,17 @@ select {
 .time-colon {
   font-weight: 700;
   color: #4a5568;
+}
+
+/* ===== セクション見出し：共通スタイル ===== */
+.add-section h2,
+.section-header h2,
+.ai-header h2,
+.today-section h2,
+.today-done-header h3,
+.today-anytime h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: 0.01em;
 }
