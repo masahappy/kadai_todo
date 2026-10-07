@@ -334,9 +334,25 @@ async function addTask() {
     mode:       currentMode
   };
 
-  const btn = document.getElementById('btn-add');
-  btn.disabled = true;
+  // ① 先に画面側だけ更新する（サーバーの返事を待たない）
+  const tempId = 'temp-' + Date.now();
+  tasks.push({ ...newTask, id: tempId });
+  renderTasks();
 
+  // ② フォームを即座にリセットして、モーダルを閉じる
+  titleInput.value = '';
+  document.getElementById('input-subject').value = '';
+  document.getElementById('input-priority').value = '中';
+  document.getElementById('input-start-hour').value = '';
+  document.getElementById('input-start-minute').value = '00';
+  document.getElementById('input-end-hour').value = '';
+  document.getElementById('input-end-minute').value = '00';
+  document.getElementById('input-end-time-unknown').checked = false;
+  document.getElementById('input-end-hour').disabled = false;
+  document.getElementById('input-end-minute').disabled = false;
+  closeAddModal();
+
+  // ③ 裏側でサーバーに保存する
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
@@ -350,28 +366,24 @@ async function addTask() {
     });
 
     if (!response.ok) {
+      tasks = tasks.filter(t => t.id !== tempId);
+      renderTasks();
       alert('課題の追加に失敗しました。');
       return;
     }
 
-    titleInput.value = '';
-    document.getElementById('input-subject').value = '';
-    document.getElementById('input-priority').value = '中';
-    document.getElementById('input-start-hour').value = '';
-    document.getElementById('input-start-minute').value = '00';
-    document.getElementById('input-end-hour').value = '';
-    document.getElementById('input-end-minute').value = '00';
-    document.getElementById('input-end-time-unknown').checked = false;
-    document.getElementById('input-end-hour').disabled = false;
-    document.getElementById('input-end-minute').disabled = false;
-    closeAddModal();
+    const data = await response.json();
+    const savedTask = Array.isArray(data) ? data[0] : data;
 
-    await fetchTasks();
+    // 仮のタスクを、サーバーから返ってきた本物のタスクに置き換える
+    const idx = tasks.findIndex(t => t.id === tempId);
+    if (idx !== -1) tasks[idx] = savedTask;
+    renderTasks();
   } catch (err) {
+    tasks = tasks.filter(t => t.id !== tempId);
+    renderTasks();
     alert('課題の追加に失敗しました。');
   }
-
-  btn.disabled = false;
 }
 
 // ===== タスクを完了/未完了に切り替える =====
@@ -381,6 +393,11 @@ async function toggleDone(id) {
 
   const newDoneState = !task.done;
 
+  // ① 先に画面側だけ更新する
+  task.done = newDoneState;
+  renderTasks();
+
+  // ② 裏側でサーバーに保存する
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
@@ -394,12 +411,13 @@ async function toggleDone(id) {
     });
 
     if (!response.ok) {
+      task.done = !newDoneState;
+      renderTasks();
       alert('更新に失敗しました。');
-      return;
     }
-
-    await fetchTasks();
   } catch (err) {
+    task.done = !newDoneState;
+    renderTasks();
     alert('更新に失敗しました。');
   }
 }
@@ -408,6 +426,12 @@ async function toggleDone(id) {
 async function deleteTask(id) {
   if (!confirm('この課題を削除しますか？')) return;
 
+  // ① 先に画面側だけ削除する
+  const backupTasks = [...tasks];
+  tasks = tasks.filter(t => t.id !== id);
+  renderTasks();
+
+  // ② 裏側でサーバーに削除を依頼する
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
@@ -421,12 +445,14 @@ async function deleteTask(id) {
     });
 
     if (!response.ok) {
+      // 失敗したら元に戻す
+      tasks = backupTasks;
+      renderTasks();
       alert('削除に失敗しました。');
-      return;
     }
-
-    await fetchTasks();
   } catch (err) {
+    tasks = backupTasks;
+    renderTasks();
     alert('削除に失敗しました。');
   }
 }
