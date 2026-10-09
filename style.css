@@ -517,64 +517,6 @@ select {
   color: #4a5568;
 }
 
-/* ===== モード選択画面 ===== */
-#mode-select-screen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-#mode-select-screen .auth-box {
-  background: #fff;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  max-width: 360px;
-  width: 100%;
-  text-align: center;
-}
-
-#mode-select-screen h1 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #1a202c;
-  margin-bottom: 0.5rem;
-}
-
-#mode-select-screen .section-desc {
-  margin: 0 0 1.5rem;
-}
-
-#mode-select-screen button {
-  display: block;
-  width: 100%;
-  height: 52px;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 0.75rem;
-  transition: opacity 0.2s, transform 0.1s;
-}
-
-#mode-select-screen button:active { transform: scale(0.98); }
-
-#mode-select-screen button:nth-of-type(1) {
-  background: linear-gradient(135deg, #3182ce, #6b46c1);
-  color: #fff;
-}
-
-#mode-select-screen button:nth-of-type(2) {
-  background: #f7fafc;
-  color: #2d3748;
-  border: 1px solid #e2e8f0;
-}
-
-#mode-select-screen button:hover { opacity: 0.9; }
-
 /* ===== モード切替ボタン ===== */
 #btn-switch-mode {
   height: 34px;
@@ -962,4 +904,147 @@ select {
   font-weight: 700;
   color: var(--color-text);
   letter-spacing: 0.01em;
+}
+
+/* ===== ログイン画面・モード選択画面：共通 ===== */
+#auth-screen,
+#mode-select-screen {
+  display: flex;
+  min-height: calc(100vh - 4rem);
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-box {
+  background: #fff;
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  text-align: center;
+}
+
+.auth-box h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.auth-box .section-desc {
+  margin: 0 0 var(--space-sm);
+}
+
+/* ===== ログイン画面 ===== */
+.auth-box input[type="email"],
+.auth-box input[type="password"] {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0 14px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-bg-soft);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.auth-box input[type="email"]:focus,
+.auth-box input[type="password"]:focus {
+  border-color: var(--color-primary);
+  background: #fff;
+}
+
+#btn-login {
+  height: 46px;
+  margin-top: var(--space-xs);
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+#btn-login:hover { opacity: 0.9; }
+#btn-login:active { transform: scale(0.98); }
+
+#btn-signup {
+  height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-sub);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+#btn-signup:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.auth-error {
+  font-size: 0.85rem;
+  color: var(--color-danger);
+  background: #fff5f5;
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+/* ===== モード選択カード ===== */
+.mode-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+
+.mode-card:hover {
+  border-color: var(--color-primary);
+  background: #ebf8ff;
+  box-shadow: var(--shadow-card);
+}
+
+.mode-card:active { transform: scale(0.98); }
+
+.mode-card-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.mode-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mode-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.mode-card-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }

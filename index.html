@@ -33,8 +33,22 @@
     <div class="auth-box">
       <h1>📚 課題ToDo</h1>
       <p class="section-desc">表示モードを選んでください</p>
-      <button onclick="selectMode('day')">🗓️ 1dayモード（今日のタスク）</button>
-      <button onclick="selectMode('week')">📆 1weekモード（週間管理）</button>
+
+      <button class="mode-card" onclick="selectMode('day')">
+        <span class="mode-card-icon">🗓️</span>
+        <span class="mode-card-text">
+          <span class="mode-card-title">1dayモード</span>
+          <span class="mode-card-desc">今日のタスクを時間軸で管理</span>
+        </span>
+      </button>
+
+      <button class="mode-card" onclick="selectMode('week')">
+        <span class="mode-card-icon">📆</span>
+        <span class="mode-card-text">
+          <span class="mode-card-title">1weekモード</span>
+          <span class="mode-card-desc">締切や週の予定をまとめて管理</span>
+        </span>
+      </button>
     </div>
   </div>
 
