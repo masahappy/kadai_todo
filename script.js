@@ -209,9 +209,10 @@ function updateDeadlineHint() {
 
 // ===== モードに合わせて、フォームの項目を切り替える =====
 function applyModeToForm() {
-  // 1weekモードでは、開始・終了時刻の項目を隠す
-  document.getElementById('time-fields').style.display =
-    (currentMode === 'week') ? 'none' : '';
+  const isWeek = (currentMode === 'week');
+  // 1weekモード：締切日を表示、時刻は隠す ／ 1dayモード：その逆
+  document.getElementById('deadline-block').style.display = isWeek ? '' : 'none';
+  document.getElementById('time-fields').style.display   = isWeek ? 'none' : '';
 }
 
 // ===== 入力フォームを初期状態に戻す =====
@@ -436,17 +437,17 @@ async function addTask() {
   }
 
   const subject  = document.getElementById('input-subject').value.trim();
-  const deadline = document.getElementById('input-deadline').value;
+  const deadline = (currentMode === 'week') ? document.getElementById('input-deadline').value : '';
   const priority = document.getElementById('input-priority').value;
 
   const startHour   = document.getElementById('input-start-hour').value;
   const startMinute = document.getElementById('input-start-minute').value;
-  const startTime = startHour ? `${startHour}:${startMinute}` : null;
+  const startTime = (currentMode === 'day' && startHour) ?  `${startHour}:${startMinute}` : null;
 
   const endTimeUnknown = document.getElementById('input-end-time-unknown').checked;
   const endHour   = document.getElementById('input-end-hour').value;
   const endMinute = document.getElementById('input-end-minute').value;
-  const endTime = (!endTimeUnknown && endHour) ? `${endHour}:${endMinute}` : null;
+  const endTime = (currentMode === 'day' && !endTimeUnknown && endHour) ? `${endHour}:${endMinute}` : null;
 
   // 追加・編集で共通の項目
   const fields = {

@@ -1066,3 +1066,70 @@ select {
   opacity: 1;
   background: #ebf8ff;
 }
+
+/* ===== 追加フォーム：締切日ブロック ===== */
+.deadline-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: var(--radius-lg);
+  text-align: left;
+}
+
+.field-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.deadline-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid #bee3f8;
+  background: #fff;
+  color: var(--color-primary-dark);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.chip:hover { border-color: var(--color-primary); }
+
+.chip.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.deadline-block input[type="date"] {
+  width: 100%;
+}
+
+.deadline-hint {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  min-height: 1.2em;
+}
+
+.deadline-hint.is-urgent {
+  color: var(--color-danger);
+}
+
+/* ===== 追加フォーム：時刻の項目（1dayモードのみ表示） ===== */
+#time-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
