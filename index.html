@@ -193,69 +193,83 @@
           </div>
           <div class="form-row">
             <input type="text" id="input-subject" placeholder="カテゴリ（例：就活、授業、バイト）">
-            <input type="date" id="input-deadline">
             <select id="input-priority">
               <option value="中">優先度：中</option>
               <option value="高">優先度：高</option>
               <option value="低">優先度：低</option>
             </select>
           </div>
-        <div class="form-row">
-          <div class="time-select-group">
-            <span class="time-select-label">開始</span>
-            <select id="input-start-hour">
-              <option value="">未設定</option>
-              <option value="00">00</option><option value="01">01</option><option value="02">02</option>
-              <option value="03">03</option><option value="04">04</option><option value="05">05</option>
-              <option value="06">06</option><option value="07">07</option><option value="08">08</option>
-              <option value="09">09</option><option value="10">10</option><option value="11">11</option>
-              <option value="12">12</option><option value="13">13</option><option value="14">14</option>
-              <option value="15">15</option><option value="16">16</option><option value="17">17</option>
-              <option value="18">18</option><option value="19">19</option><option value="20">20</option>
-              <option value="21">21</option><option value="22">22</option><option value="23">23</option>
-            </select>
-            <span class="time-colon">：</span>
-            <select id="input-start-minute">
-              <option value="00">00</option><option value="05">05</option><option value="10">10</option>
-              <option value="15">15</option><option value="20">20</option><option value="25">25</option>
-              <option value="30">30</option><option value="35">35</option><option value="40">40</option>
-              <option value="45">45</option><option value="50">50</option><option value="55">55</option>
-            </select>
+
+          <div class="deadline-block">
+            <div class="field-label">📅 締切日</div>
+            <div class="deadline-chips">
+              <button type="button" class="chip" data-offset="0" onclick="setDeadlineOffset(0)">今日</button>
+              <button type="button" class="chip" data-offset="1" onclick="setDeadlineOffset(1)">明日</button>
+              <button type="button" class="chip" data-offset="3" onclick="setDeadlineOffset(3)">3日後</button>
+              <button type="button" class="chip" data-offset="7" onclick="setDeadlineOffset(7)">1週間後</button>
+            </div>
+            <input type="date" id="input-deadline" onchange="updateDeadlineHint()">
+            <p id="deadline-hint" class="deadline-hint"></p>
+          </div>
+        
+        <div id="time-fields">
+          <div class="form-row">
+            <div class="time-select-group">
+              <span class="time-select-label">開始</span>
+              <select id="input-start-hour">
+                <option value="">未設定</option>
+                <option value="00">00</option><option value="01">01</option><option value="02">02</option>
+                <option value="03">03</option><option value="04">04</option><option value="05">05</option>
+                <option value="06">06</option><option value="07">07</option><option value="08">08</option>
+                <option value="09">09</option><option value="10">10</option><option value="11">11</option>
+                <option value="12">12</option><option value="13">13</option><option value="14">14</option>
+                <option value="15">15</option><option value="16">16</option><option value="17">17</option>
+                <option value="18">18</option><option value="19">19</option><option value="20">20</option>
+                <option value="21">21</option><option value="22">22</option><option value="23">23</option>
+              </select>
+              <span class="time-colon">：</span>
+              <select id="input-start-minute">
+                <option value="00">00</option><option value="05">05</option><option value="10">10</option>
+                <option value="15">15</option><option value="20">20</option><option value="25">25</option>
+                <option value="30">30</option><option value="35">35</option><option value="40">40</option>
+                <option value="45">45</option><option value="50">50</option><option value="55">55</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="time-select-group">
+              <span class="time-select-label">終了</span>
+              <select id="input-end-hour">
+                <option value="">未設定</option>
+                <option value="00">00</option><option value="01">01</option><option value="02">02</option>
+                <option value="03">03</option><option value="04">04</option><option value="05">05</option>
+                <option value="06">06</option><option value="07">07</option><option value="08">08</option>
+                <option value="09">09</option><option value="10">10</option><option value="11">11</option>
+                <option value="12">12</option><option value="13">13</option><option value="14">14</option>
+                <option value="15">15</option><option value="16">16</option><option value="17">17</option>
+                <option value="18">18</option><option value="19">19</option><option value="20">20</option>
+                <option value="21">21</option><option value="22">22</option><option value="23">23</option>
+              </select>
+              <span class="time-colon">：</span>
+              <select id="input-end-minute">
+                <option value="00">00</option><option value="05">05</option><option value="10">10</option>
+                <option value="15">15</option><option value="20">20</option><option value="25">25</option>
+                <option value="30">30</option><option value="35">35</option><option value="40">40</option>
+                <option value="45">45</option><option value="50">50</option><option value="55">55</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="input-end-time-unknown" onchange="toggleEndTimeInput()">
+              終了未定
+            </label>
           </div>
         </div>
-        <div class="form-row">
-          <div class="time-select-group">
-            <span class="time-select-label">終了</span>
-            <select id="input-end-hour">
-              <option value="">未設定</option>
-              <option value="00">00</option><option value="01">01</option><option value="02">02</option>
-              <option value="03">03</option><option value="04">04</option><option value="05">05</option>
-              <option value="06">06</option><option value="07">07</option><option value="08">08</option>
-              <option value="09">09</option><option value="10">10</option><option value="11">11</option>
-              <option value="12">12</option><option value="13">13</option><option value="14">14</option>
-              <option value="15">15</option><option value="16">16</option><option value="17">17</option>
-              <option value="18">18</option><option value="19">19</option><option value="20">20</option>
-              <option value="21">21</option><option value="22">22</option><option value="23">23</option>
-            </select>
-            <span class="time-colon">：</span>
-            <select id="input-end-minute">
-              <option value="00">00</option><option value="05">05</option><option value="10">10</option>
-              <option value="15">15</option><option value="20">20</option><option value="25">25</option>
-              <option value="30">30</option><option value="35">35</option><option value="40">40</option>
-              <option value="45">45</option><option value="50">50</option><option value="55">55</option>
-            </select>
+            <button id="btn-add" onclick="addTask()">＋ 追加する</button>
           </div>
-        </div>
-        <div class="form-row">
-          <label class="checkbox-label">
-            <input type="checkbox" id="input-end-time-unknown" onchange="toggleEndTimeInput()">
-            終了未定
-          </label>
-        </div>
-          <button id="btn-add" onclick="addTask()">＋ 追加する</button>
         </div>
       </div>
-    </div>
 
   <script src="script.js"></script>
 </body>

@@ -86,8 +86,7 @@ window.onload = async function () {
   const today = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
   document.getElementById('today-date').textContent = today.toLocaleDateString('ja-JP', options);
-  document.getElementById('input-deadline').value = today.toISOString().split('T')[0];
-
+  document.getElementById('input-deadline').value = today.toLocaleDateString('sv-SE');
 
   // ログイン状態を確認
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -144,6 +143,8 @@ function toggleEndTimeInput() {
 
 // ===== 課題追加モーダルを開く =====
 function openAddModal() {
+  applyModeToForm();
+  updateDeadlineHint();
   document.getElementById('add-modal-overlay').style.display = 'flex';
 }
 
@@ -159,6 +160,58 @@ function setSelectValue(id, value) {
     sel.add(opt);
   }
   sel.value = value;
+}
+
+// ===== 締切日をワンタップで選ぶ（今日からN日後） =====
+function setDeadlineOffset(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  document.getElementById('input-deadline').value = d.toLocaleDateString('sv-SE');
+  updateDeadlineHint();
+}
+
+// ===== 選んだ締切日の「曜日・残り日数」を表示する =====
+function updateDeadlineHint() {
+  const value = document.getElementById('input-deadline').value;
+  const hint  = document.getElementById('deadline-hint');
+  const chips = document.querySelectorAll('.deadline-chips .chip');
+
+  chips.forEach(c => c.classList.remove('active'));
+  hint.classList.remove('is-urgent');
+
+  if (!value) {
+    hint.textContent = '締切なし';
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(value + 'T00:00:00');
+  const diff = Math.round((target - today) / (1000 * 60 * 60 * 24));
+
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  const dateText = `${target.getMonth() + 1}/${target.getDate()}（${weekdays[target.getDay()]}）`;
+
+  let remain;
+  if      (diff < 0)   remain = `期限切れ（${-diff}日前）`;
+  else if (diff === 0) remain = '今日まで';
+  else if (diff === 1) remain = '明日まで';
+  else                 remain = `あと${diff}日`;
+
+  hint.textContent = `${dateText}・${remain}`;
+  if (diff <= 1) hint.classList.add('is-urgent');
+
+  // 4つのボタンのうち、選んだ日に当てはまるものを青くする
+  chips.forEach(c => {
+    if (Number(c.dataset.offset) === diff) c.classList.add('active');
+  });
+}
+
+// ===== モードに合わせて、フォームの項目を切り替える =====
+function applyModeToForm() {
+  // 1weekモードでは、開始・終了時刻の項目を隠す
+  document.getElementById('time-fields').style.display =
+    (currentMode === 'week') ? 'none' : '';
 }
 
 // ===== 入力フォームを初期状態に戻す =====
@@ -179,6 +232,9 @@ function resetAddForm() {
   document.getElementById('input-end-time-unknown').checked = false;
   document.getElementById('input-end-hour').disabled = false;
   document.getElementById('input-end-minute').disabled = false;
+
+  updateDeadlineHint();
+  applyModeToForm();
 }
 
 // ===== 課題追加モーダルを閉じる =====
@@ -206,6 +262,7 @@ function openEditModal(id) {
   document.getElementById('input-title').value    = task.title || '';
   document.getElementById('input-subject').value  = task.subject || '';
   document.getElementById('input-deadline').value = task.deadline || '';
+  updateDeadlineHint();
   document.getElementById('input-priority').value = task.priority || '中';
 
   if (task.start_time) {
