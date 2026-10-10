@@ -147,9 +147,77 @@ function openAddModal() {
   document.getElementById('add-modal-overlay').style.display = 'flex';
 }
 
+// ===== 編集中の課題ID（nullなら新規追加） =====
+let editingTaskId = null;
+
+// ===== プルダウンに値をセットする（選択肢にない値は一時的に追加する） =====
+function setSelectValue(id, value) {
+  const sel = document.getElementById(id);
+  if (value && ![...sel.options].some(o => o.value === value)) {
+    const opt = new Option(value, value);
+    opt.dataset.extra = '1';
+    sel.add(opt);
+  }
+  sel.value = value;
+}
+
+// ===== 入力フォームを初期状態に戻す =====
+function resetAddForm() {
+  document.querySelectorAll('#add-modal-overlay option[data-extra]').forEach(o => o.remove());
+
+  document.getElementById('add-modal-title').textContent = '課題を追加';
+  document.getElementById('btn-add').textContent = '＋ 追加する';
+
+  document.getElementById('input-title').value = '';
+  document.getElementById('input-subject').value = '';
+  document.getElementById('input-deadline').value = new Date().toLocaleDateString('sv-SE');
+  document.getElementById('input-priority').value = '中';
+  document.getElementById('input-start-hour').value = '';
+  document.getElementById('input-start-minute').value = '00';
+  document.getElementById('input-end-hour').value = '';
+  document.getElementById('input-end-minute').value = '00';
+  document.getElementById('input-end-time-unknown').checked = false;
+  document.getElementById('input-end-hour').disabled = false;
+  document.getElementById('input-end-minute').disabled = false;
+}
+
 // ===== 課題追加モーダルを閉じる =====
 function closeAddModal() {
   document.getElementById('add-modal-overlay').style.display = 'none';
+
+  // 編集中に閉じたら、フォームを初期状態に戻す
+  if (editingTaskId !== null) {
+    editingTaskId = null;
+    resetAddForm();
+  }
+}
+
+// ===== 課題編集モーダルを開く =====
+function openEditModal(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  resetAddForm();
+  editingTaskId = id;
+
+  document.getElementById('add-modal-title').textContent = '課題を編集';
+  document.getElementById('btn-add').textContent = '保存する';
+
+  document.getElementById('input-title').value    = task.title || '';
+  document.getElementById('input-subject').value  = task.subject || '';
+  document.getElementById('input-deadline').value = task.deadline || '';
+  document.getElementById('input-priority').value = task.priority || '中';
+
+  if (task.start_time) {
+    setSelectValue('input-start-hour',   task.start_time.slice(0, 2));
+    setSelectValue('input-start-minute', task.start_time.slice(3, 5));
+  }
+  if (task.end_time) {
+    setSelectValue('input-end-hour',   task.end_time.slice(0, 2));
+    setSelectValue('input-end-minute', task.end_time.slice(3, 5));
+  }
+
+  document.getElementById('add-modal-overlay').style.display = 'flex';
 }
 
 // ===== モーダルの外側（黒い背景部分）をクリックしたら閉じる =====
@@ -323,15 +391,70 @@ async function addTask() {
   const endMinute = document.getElementById('input-end-minute').value;
   const endTime = (!endTimeUnknown && endHour) ? `${endHour}:${endMinute}` : null;
 
-  const newTask = {
+  // 追加・編集で共通の項目
+  const fields = {
     title:      title,
     subject:    subject || null,
     deadline:   deadline || null,
     priority:   priority,
-    done:       false,
     start_time: startTime,
-    end_time:   endTime,
-    mode:       currentMode
+    end_time:   endTime
+  };
+
+  // ===== 編集の保存 =====
+  if (editingTaskId !== null) {
+    const id = editingTaskId;
+    const task = tasks.find(t => t.id === id);
+
+    if (!task) {
+      closeAddModal();
+      return;
+    }
+
+    // サーバーへの保存がまだ終わっていない課題は、編集できない
+    if (String(id).startsWith('temp-')) {
+      alert('保存中です。少し待ってからもう一度お試しください。');
+      return;
+    }
+
+    const backup = { ...task };
+
+    // ① 先に画面側だけ更新する
+    Object.assign(task, fields);
+    closeAddModal();   // 編集モードを終了して、フォームも初期状態に戻る
+    renderTasks();
+
+    // ② 裏側でサーバーに保存する
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      const response = await fetch('/.netlify/functions/update-task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ id, ...fields })
+      });
+
+      if (!response.ok) {
+        Object.assign(task, backup);
+        renderTasks();
+        alert('課題の更新に失敗しました。');
+      }
+    } catch (err) {
+      Object.assign(task, backup);
+      renderTasks();
+      alert('課題の更新に失敗しました。');
+    }
+    return;
+  }
+
+  // ===== 新規追加 =====
+  const newTask = {
+    ...fields,
+    done: false,
+    mode: currentMode
   };
 
   // ① 先に画面側だけ更新する（サーバーの返事を待たない）
@@ -339,17 +462,8 @@ async function addTask() {
   tasks.push({ ...newTask, id: tempId });
   renderTasks();
 
-  // ② フォームを即座にリセットして、モーダルを閉じる
-  titleInput.value = '';
-  document.getElementById('input-subject').value = '';
-  document.getElementById('input-priority').value = '中';
-  document.getElementById('input-start-hour').value = '';
-  document.getElementById('input-start-minute').value = '00';
-  document.getElementById('input-end-hour').value = '';
-  document.getElementById('input-end-minute').value = '00';
-  document.getElementById('input-end-time-unknown').checked = false;
-  document.getElementById('input-end-hour').disabled = false;
-  document.getElementById('input-end-minute').disabled = false;
+  // ② フォームを初期状態に戻して、モーダルを閉じる
+  resetAddForm();
   closeAddModal();
 
   // ③ 裏側でサーバーに保存する
@@ -590,6 +704,7 @@ function renderTasks() {
         </div>
       </div>
 
+      <button class="edit-btn" onclick="openEditModal(${task.id})" title="編集">✏️</button>
       <button class="delete-btn" onclick="deleteTask(${task.id})" title="削除">🗑</button>
     `;
 
