@@ -314,7 +314,7 @@ async function saveSchedule() {
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
-    await fetch('/.netlify/functions/save-schedule', {
+    await fetch('/api/save-schedule', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
