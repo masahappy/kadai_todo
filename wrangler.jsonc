@@ -1,0 +1,16 @@
+{
+  // Cloudflareの画面で作るWorkerの名前と、必ず同じにする（違うとビルドが失敗します）
+  "name": "aitodo",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-21",
+
+  // Cloudflareの画面で設定した環境変数を、公開のたびに消さない
+  "keep_vars": true,
+
+  "assets": {
+    // 画面のファイル（index.html / style.css / script.js）が入っているフォルダ
+    "directory": "./public",
+    // /api/ で始まる住所だけ、worker/index.js で処理する。それ以外は画面のファイルを返す
+    "run_worker_first": ["/api/*"]
+  }
+}
