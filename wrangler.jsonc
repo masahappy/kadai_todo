@@ -1,6 +1,6 @@
 {
   // Cloudflareの画面で作るWorkerの名前と、必ず同じにする（違うとビルドが失敗します）
-  "name": "aitodo",
+  "name": "kadai-todo",
   "main": "worker/index.js",
   "compatibility_date": "2026-10-21",
 
