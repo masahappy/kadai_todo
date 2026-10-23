@@ -353,7 +353,7 @@ async function loadSchedule() {
 
 // ===== AIアドバイスを取得する =====
 async function getAIAdvice() {
-  const undoneTasks = tasks.filter(t => !t.done);
+    const undoneTasks = tasks.filter(t => t.mode === 'week' && !t.done);
 
   if (undoneTasks.length === 0) {
     alert('未完了の課題がありません！');
