@@ -401,20 +401,27 @@ ${scheduleText}
 - 日本語で、箇条書きでわかりやすく回答する
   `.trim();
 
-  try {
-    const response = await fetch('/api/ai-advice', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const response = await fetch('/api/ai-advice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ prompt })
+      });
 
     const data = await response.json();
-    const text = data.text;
+
+    if (!response.ok || !data.text) {
+      throw new Error(data.error || 'AIから応答を取得できませんでした');
+    }
 
     resultEl.innerHTML = `
       <div class="ai-answer">
         <h3>🤖 AIからのアドバイス</h3>
-        <div class="ai-text">${text.replace(/\n/g, '<br>')}</div>
+        <div class="ai-text">${data.text.replace(/\n/g, '<br>')}</div>
       </div>
     `;
   } catch (err) {

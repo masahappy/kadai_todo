@@ -220,8 +220,18 @@ async function saveSchedule(request, env) {
 // ===== /api/ai-advice：AIにスケジュールのアドバイスをもらう =====
 async function aiAdvice(request, env) {
   requireMethod(request, 'POST');
+  await requireUser(request, env); // ログインしていなければ401で止める
 
-  const { prompt } = await readJson(request);
+  const body = await readJson(request);
+  const prompt = body && body.prompt;
+
+  // 入力チェック（文字列であること、長すぎないこと）
+  if (typeof prompt !== 'string' || prompt.trim() === '') {
+    throw new HttpError(400, 'プロンプトが指定されていません');
+  }
+  if (prompt.length > 8000) {
+    throw new HttpError(400, 'プロンプトが長すぎます');
+  }
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
