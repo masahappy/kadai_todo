@@ -12,6 +12,11 @@ let schedule = JSON.parse(localStorage.getItem('kadai-schedule')) || {};
 let currentFilter = 'すべて';
 let currentMode = null;  // 'day' または 'week'
 
+// ===== IDで課題を探す（数値でも文字列でも一致させる） =====
+function findTask(id) {
+  return tasks.find(t => String(t.id) === String(id));
+}
+
 // ===== アプリ起動時の処理 =====
 // ===== サインアップ =====
 async function handleSignup() {
@@ -251,7 +256,7 @@ function closeAddModal() {
 
 // ===== 課題編集モーダルを開く =====
 function openEditModal(id) {
-  const task = tasks.find(t => t.id === id);
+  const task = findTask(id);
   if (!task) return;
 
   resetAddForm();
@@ -469,7 +474,7 @@ async function addTask() {
   // ===== 編集の保存 =====
   if (editingTaskId !== null) {
     const id = editingTaskId;
-    const task = tasks.find(t => t.id === id);
+    const task = findTask(id);
 
     if (!task) {
       closeAddModal();
@@ -499,7 +504,7 @@ async function addTask() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({ id, ...fields })
+        body: JSON.stringify({ id: task.id, ...fields })
       });
 
       if (!response.ok) {
@@ -567,7 +572,11 @@ async function addTask() {
 
 // ===== タスクを完了/未完了に切り替える =====
 async function toggleDone(id) {
-  const task = tasks.find(t => t.id === id);
+  if (String(id).startsWith('temp-')) {
+    alert('保存中です。少し待ってからもう一度お試しください。');
+    return;
+  }
+  const task = findTask(id);
   if (!task) return;
 
   const newDoneState = !task.done;
@@ -586,7 +595,7 @@ async function toggleDone(id) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.access_token}`
       },
-      body: JSON.stringify({ id, done: newDoneState })
+      body: JSON.stringify({ id: task.id, done: newDoneState })
     });
 
     if (!response.ok) {
@@ -603,11 +612,17 @@ async function toggleDone(id) {
 
 // ===== タスクを削除する =====
 async function deleteTask(id) {
+  if (String(id).startsWith('temp-')) {
+    alert('保存中です。少し待ってからもう一度お試しください。');
+    return;
+  }
+  const target = findTask(id);
+  if (!target) return;
   if (!confirm('この課題を削除しますか？')) return;
 
   // ① 先に画面側だけ削除する
   const backupTasks = [...tasks];
-  tasks = tasks.filter(t => t.id !== id);
+  tasks = tasks.filter(t => String(t.id) !== String(id));
   renderTasks();
 
   // ② 裏側でサーバーに削除を依頼する
@@ -620,11 +635,10 @@ async function deleteTask(id) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.access_token}`
       },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ id: target.id })
     });
 
     if (!response.ok) {
-      // 失敗したら元に戻す
       tasks = backupTasks;
       renderTasks();
       alert('削除に失敗しました。');
@@ -705,12 +719,27 @@ function formatDeadline(deadlineStr) {
 function updateStats() {
   const modeTasks = tasks.filter(t => t.mode === currentMode);
   const undone = modeTasks.filter(t => !t.done).length;
-  const urgent = modeTasks.filter(t => !t.done && isUrgent(t.deadline)).length;
   const done   = modeTasks.filter(t => t.done).length;
 
-  document.getElementById('stat-total').textContent  = undone;
-  document.getElementById('stat-urgent').textContent = urgent;
-  document.getElementById('stat-done').textContent   = done;
+  document.getElementById('stat-total').textContent = undone;
+  document.getElementById('stat-done').textContent  = done;
+
+  const card  = document.getElementById('stat-urgent-card');
+  const num   = document.getElementById('stat-urgent');
+  const label = document.getElementById('stat-urgent-label');
+
+  if (currentMode === 'day') {
+    // 1dayモード：完了率
+    const total = modeTasks.length;
+    num.textContent   = total === 0 ? '—' : `${Math.round((done / total) * 100)}%`;
+    label.textContent = '完了率';
+    card.classList.remove('warn');
+  } else {
+    // 1weekモード：締切間近（従来どおり）
+    num.textContent   = modeTasks.filter(t => !t.done && isUrgent(t.deadline)).length;
+    label.textContent = '締切間近';
+    card.classList.add('warn');
+  }
 }
 
 // ===== タスク一覧を描画する =====
@@ -756,7 +785,7 @@ function renderTasks() {
     card.innerHTML = `
       <button
         class="check-btn${task.done ? ' checked' : ''}"
-        onclick="toggleDone(${task.id})"
+        onclick="toggleDone('${task.id}')"
         title="${task.done ? '未完了に戻す' : '完了にする'}"
       >${task.done ? '✓' : ''}</button>
 
@@ -769,8 +798,8 @@ function renderTasks() {
         </div>
       </div>
 
-      <button class="edit-btn" onclick="openEditModal(${task.id})" title="編集">✏️</button>
-      <button class="delete-btn" onclick="deleteTask(${task.id})" title="削除">🗑</button>
+      <button class="edit-btn" onclick="openEditModal('${task.id}')" title="編集">✏️</button>
+      <button class="delete-btn" onclick="deleteTask('${task.id}')" title="削除">🗑</button>
     `;
 
     list.appendChild(card);
@@ -893,7 +922,10 @@ function renderTodayView() {
   emptyMsg.style.display = todayTasks.length === 0 ? 'block' : 'none';
 
   const timed   = todayTasks.filter(t => t.start_time);
-  const anytime = todayTasks.filter(t => !t.start_time);
+  const PRIORITY_ORDER = { '高': 0, '中': 1, '低': 2 };
+  const anytime = todayTasks
+    .filter(t => !t.start_time)
+    .sort((a, b) => (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1));
 
   // タスク配置用の専用レイヤーを作る（時間ラベルの右側の領域）
   const layer = document.createElement('div');
@@ -948,7 +980,7 @@ function renderTodayView() {
     item.style.left   = `${leftPercent}%`;
     item.style.width  = `calc(${widthPercent}% - 4px)`;
     item.innerHTML = `
-      <button class="check-btn" onclick="toggleDone(${task.id})" title="完了にする"></button>
+      <button class="check-btn" onclick="toggleDone('${task.id}')" title="完了にする"></button>
       <div class="timeline-content">
         <span class="timeline-time">${timeLabel}</span>
         <span class="task-title">${escapeHtml(task.title)}</span>
@@ -969,7 +1001,7 @@ function renderTodayView() {
         <span class="task-title">${escapeHtml(task.title)}</span>
         ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
       </div>
-      <button class="check-btn" onclick="toggleDone(${task.id})" title="完了にする"></button>
+      <button class="check-btn" onclick="toggleDone('${task.id}')" title="完了にする"></button>
     `;
     anytimeList.appendChild(item);
   });
@@ -987,12 +1019,12 @@ function renderTodayView() {
     const item = document.createElement('div');
     item.className = 'today-done-item';
     item.innerHTML = `
-      <button class="check-btn checked" onclick="toggleDone(${task.id})" title="未完了に戻す">✓</button>
+      <button class="check-btn checked" onclick="toggleDone('${task.id}')" title="未完了に戻す">✓</button>
       <div class="task-info">
         <span class="task-title">${escapeHtml(task.title)}</span>
         ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
       </div>
-      <button class="delete-btn" onclick="deleteTask(${task.id})" title="削除">🗑</button>
+      <button class="delete-btn" onclick="deleteTask('${task.id}')" title="削除">🗑</button>
     `;
     doneList.appendChild(item);
   });
