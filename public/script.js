@@ -1006,12 +1006,15 @@ function renderTodayView() {
   anytime.forEach(task => {
     const item = document.createElement('div');
     item.className = 'anytime-item';
-    item.innerHTML = `
+        item.innerHTML = `
       <div class="task-info">
         <span class="task-title">${escapeHtml(task.title)}</span>
         ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
       </div>
-      <button class="check-btn" onclick="toggleDone('${task.id}')" title="完了にする"></button>
+      <div class="anytime-actions">
+        <button class="mini-edit-btn" onclick="openEditModal('${task.id}')" title="編集">✏️</button>
+        <button class="check-btn" onclick="toggleDone('${task.id}')" title="完了にする"></button>
+      </div>
     `;
     anytimeList.appendChild(item);
   });
