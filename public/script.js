@@ -256,11 +256,15 @@ function closeAddModal() {
 
 // ===== 課題編集モーダルを開く =====
 function openEditModal(id) {
+  if (String(id).startsWith('temp-')) {
+    alert('保存中です。少し待ってからもう一度お試しください。');
+    return;
+  }
   const task = findTask(id);
   if (!task) return;
 
   resetAddForm();
-  editingTaskId = id;
+  editingTaskId = task.id;
 
   document.getElementById('add-modal-title').textContent = '課題を編集';
   document.getElementById('btn-add').textContent = '保存する';
@@ -278,6 +282,11 @@ function openEditModal(id) {
   if (task.end_time) {
     setSelectValue('input-end-hour',   task.end_time.slice(0, 2));
     setSelectValue('input-end-minute', task.end_time.slice(3, 5));
+  }
+  // 1day：開始時刻があって終了時刻がない課題は「終了未定」にチェックを入れる
+  if (currentMode === 'day' && task.start_time && !task.end_time) {
+    document.getElementById('input-end-time-unknown').checked = true;
+    toggleEndTimeInput();
   }
 
   document.getElementById('add-modal-overlay').style.display = 'flex';
@@ -459,7 +468,7 @@ async function addTask() {
   const endTimeUnknown = document.getElementById('input-end-time-unknown').checked;
   const endHour   = document.getElementById('input-end-hour').value;
   const endMinute = document.getElementById('input-end-minute').value;
-  const endTime = (currentMode === 'day' && !endTimeUnknown && endHour) ? `${endHour}:${endMinute}` : null;
+  const endTime = (currentMode === 'day' && startHour && !endTimeUnknown && endHour) ? `${endHour}:${endMinute}` : null;
 
   // 追加・編集で共通の項目
   const fields = {
@@ -987,6 +996,7 @@ function renderTodayView() {
         ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
         ${undeterminedTag}
       </div>
+      <button class="mini-edit-btn" onclick="openEditModal('${task.id}')" title="編集">✏️</button>
     `;
     layer.appendChild(item);
   });
