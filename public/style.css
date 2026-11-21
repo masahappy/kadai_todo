@@ -1169,3 +1169,52 @@ select {
   gap: 6px;
   flex-shrink: 0;
 }
+
+/* ===== カテゴリ別タブ・カテゴリ選択ボタン ===== */
+.category-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.subject-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.subject-chips:empty { display: none; }
+
+.cat-tab,
+.subject-chip {
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-soft);
+  color: var(--color-text-sub);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cat-tab:hover,
+.subject-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.cat-tab.active,
+.subject-chip.active {
+  background: #f5f0ff;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.cat-count {
+  margin-left: 4px;
+  font-weight: 400;
+  opacity: 0.7;
+}

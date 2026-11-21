@@ -175,6 +175,8 @@
           <button class="tab" onclick="filterBySubject('完了済み', this)">完了済み</button>
         </div>
 
+        <div id="category-tabs" class="category-tabs" style="display:none"></div>
+
         <div class="week-clear-row">
           <button id="btn-clear-done-week" onclick="clearDoneTasks('week')" style="display:none">完了済みをまとめて削除</button>
         </div>
@@ -206,6 +208,8 @@
               <option value="低">優先度：低</option>
             </select>
           </div>
+
+          <div id="subject-chips" class="subject-chips"></div>
 
           <div class="deadline-block" id="deadline-block">
             <div class="field-label">📅 締切日</div>

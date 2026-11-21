@@ -17,6 +17,97 @@ function findTask(id) {
   return tasks.find(t => String(t.id) === String(id));
 }
 
+// ===== カテゴリ（subject）別タブ =====
+const UNCATEGORIZED = '__uncategorized__';
+let currentCategory = null;  // null = 全カテゴリ
+
+function getCategory(task) {
+  return (task.subject || '').trim() || UNCATEGORIZED;
+}
+
+function selectCategory(key) {
+  currentCategory = key;
+  renderTasks();
+}
+
+// 1weekの一覧の上に、カテゴリ別のタブを描画する
+function renderCategoryTabs(weekTasks, statusFiltered) {
+  const box = document.getElementById('category-tabs');
+
+  // 使われているカテゴリを、出てきた順に集める（未分類は最後）
+  const keys = [];
+  weekTasks.forEach(t => {
+    const k = getCategory(t);
+    if (k !== UNCATEGORIZED && !keys.includes(k)) keys.push(k);
+  });
+  const hasNamed = keys.length > 0;
+  if (weekTasks.some(t => getCategory(t) === UNCATEGORIZED)) keys.push(UNCATEGORIZED);
+
+  // カテゴリが1つもない間は、タブを出さない
+  if (!hasNamed) {
+    currentCategory = null;
+    box.style.display = 'none';
+    box.innerHTML = '';
+    return;
+  }
+
+  // 選択中のカテゴリがなくなったら、全カテゴリに戻す
+  if (currentCategory !== null && !keys.includes(currentCategory)) {
+    currentCategory = null;
+  }
+
+  box.innerHTML = '';
+  box.style.display = 'flex';
+
+  const addTab = (key, label, count) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cat-tab' + (currentCategory === key ? ' active' : '');
+    btn.textContent = label;
+    const num = document.createElement('span');
+    num.className = 'cat-count';
+    num.textContent = `(${count})`;
+    btn.appendChild(num);
+    btn.addEventListener('click', () => selectCategory(key));
+    box.appendChild(btn);
+  };
+
+  addTab(null, '全カテゴリ', statusFiltered.length);
+  keys.forEach(k => {
+    const count = statusFiltered.filter(t => getCategory(t) === k).length;
+    addTab(k, k === UNCATEGORIZED ? '未分類' : k, count);
+  });
+}
+
+// 追加フォーム：これまで使ったカテゴリを、ボタンで選べるようにする
+function renderSubjectChips() {
+  const box   = document.getElementById('subject-chips');
+  const input = document.getElementById('input-subject');
+  const current = input.value.trim();
+
+  // 使われた回数が多い順に並べる（同数なら出てきた順）、最大10個
+  const counts = new Map();
+  tasks.forEach(t => {
+    const s = (t.subject || '').trim();
+    if (s) counts.set(s, (counts.get(s) || 0) + 1);
+  });
+  const names = [...counts.keys()].sort((a, b) => counts.get(b) - counts.get(a)).slice(0, 10);
+
+  box.innerHTML = '';
+  names.forEach(name => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'subject-chip' + (name === current ? ' active' : '');
+    btn.textContent = name;
+    btn.addEventListener('click', () => {
+      // もう一度押すと、選択を外す
+      input.value = (input.value.trim() === name) ? '' : name;
+      renderSubjectChips();
+    });
+    box.appendChild(btn);
+  });
+}
+
 // ===== アプリ起動時の処理 =====
 // ===== サインアップ =====
 async function handleSignup() {
@@ -150,6 +241,7 @@ function toggleEndTimeInput() {
 function openAddModal() {
   applyModeToForm();
   updateDeadlineHint();
+  renderSubjectChips();
   document.getElementById('add-modal-overlay').style.display = 'flex';
 }
 
@@ -288,6 +380,7 @@ function openEditModal(id) {
     document.getElementById('input-end-time-unknown').checked = true;
     toggleEndTimeInput();
   }
+  renderSubjectChips();
 
   document.getElementById('add-modal-overlay').style.display = 'flex';
 }
@@ -769,7 +862,12 @@ function renderTasks() {
   else if (currentFilter === '完了済み') filtered = weekTasks.filter(t => t.done);
   else                                   filtered = weekTasks;
 
-  const sorted = [...filtered].sort((a, b) => {
+  renderCategoryTabs(weekTasks, filtered);
+  const visible = (currentCategory === null)
+    ? filtered
+    : filtered.filter(t => getCategory(t) === currentCategory);
+
+  const sorted = [...visible].sort((a, b) => {
     if (a.done !== b.done) return a.done ? 1 : -1;
     if (!a.deadline) return 1;
     if (!b.deadline) return -1;
@@ -1061,4 +1159,5 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('input-title').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') addTask();
   });
+  document.getElementById('input-subject').addEventListener('input', renderSubjectChips);
 });
