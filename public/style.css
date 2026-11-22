@@ -1291,3 +1291,15 @@ select {
 .mode-badge.mode-day   { background: #dbeafe; color: #1d4ed8; }
 .mode-badge.mode-week  { background: #fef3c7; color: #b45309; }
 .mode-badge.mode-month { background: #ede9fe; color: #6d28d9; }
+
+.month-clear-row { margin-top: 0.75rem; text-align: right; }
+#btn-clear-done-month {
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #dc2626;
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+}

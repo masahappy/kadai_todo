@@ -1297,6 +1297,10 @@ function renderMonthView() {
   }
 
   renderMonthDayList(byDate[selectedDate] || []);
+
+  // 表示中の月に完了済みがあるときだけ、まとめて削除ボタンを表示する
+  const hasDone = getMonthTasks().some(t => t.done);
+  document.getElementById('btn-clear-done-month').style.display = hasDone ? 'inline-block' : 'none';
 }
 
 // 選択日のタスク一覧を描画する
@@ -1355,6 +1359,40 @@ function renderMonthDayList(items) {
     `;
     list.appendChild(card);
   });
+}
+
+// 表示中の月の完了済みタスクをまとめて削除する
+async function clearDoneMonth() {
+  const doneTasks = getMonthTasks().filter(t => t.done && !String(t.id).startsWith('temp-'));
+  if (doneTasks.length === 0) return;
+
+  const month = monthCursor.getMonth() + 1;
+  const hasOtherModes = doneTasks.some(t => t.mode !== 'month');
+  const note = hasOtherModes ? '\n（1day・1weekの完了済み課題も含みます）' : '';
+  if (!confirm(`${month}月の完了済み${doneTasks.length}件を削除しますか？${note}`)) return;
+
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    const results = await Promise.all(doneTasks.map(task =>
+      fetch('/api/delete-task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ id: task.id })
+      })
+    ));
+
+    if (results.some(r => !r.ok)) {
+      alert('一部の削除に失敗しました。');
+    }
+
+    await fetchTasks();   // 最新の状態を取り直して、カレンダーも再描画する
+  } catch (err) {
+    alert('削除に失敗しました。');
+  }
 }
 
 // ===== XSS対策 =====

@@ -208,6 +208,9 @@
           <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
         </div>
         <div id="month-grid"></div>
+        <div class="month-clear-row">
+          <button id="btn-clear-done-month" onclick="clearDoneMonth()" style="display:none">完了済みをまとめて削除</button>
+        </div>
       </section>
 
       <section class="month-day-section">
@@ -216,7 +219,7 @@
         <p id="month-day-empty" class="empty-msg" style="display:none">この日のタスクはありません</p>
       </section>
     </div>
-    
+
     <!-- 課題追加：フローティングボタン -->
     <button id="btn-open-add-modal" onclick="openAddModal()">＋</button>
 
