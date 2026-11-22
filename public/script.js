@@ -176,8 +176,15 @@ async function selectMode(mode) {
   document.getElementById('mode-select-screen').style.display = 'none';
   document.getElementById('main-app').style.display = 'block';
 
-  document.getElementById('day-mode-content').style.display  = (mode === 'day')  ? 'block' : 'none';
-  document.getElementById('week-mode-content').style.display = (mode === 'week') ? 'block' : 'none';
+  document.getElementById('day-mode-content').style.display   = (mode === 'day')   ? 'block' : 'none';
+  document.getElementById('week-mode-content').style.display  = (mode === 'week')  ? 'block' : 'none';
+  document.getElementById('month-mode-content').style.display = (mode === 'month') ? 'block' : 'none';
+
+  if (mode === 'month') {
+    const now = new Date();
+    monthCursor  = new Date(now.getFullYear(), now.getMonth(), 1);
+    selectedDate = toDateStr(now);
+  }
 
   await loadSchedule();
   await fetchTasks();
@@ -251,7 +258,12 @@ function toggleEndTimeInput() {
 
 // ===== 課題追加モーダルを開く =====
 function openAddModal() {
+  formMode = currentMode;
   applyModeToForm();
+  // 1monthモードでは、選択中の日付を初期値にする
+  if (currentMode === 'month' && selectedDate) {
+    document.getElementById('input-deadline').value = selectedDate;
+  }
   updateDeadlineHint();
   renderSubjectChips();
   document.getElementById('add-modal-overlay').style.display = 'flex';
@@ -318,10 +330,12 @@ function updateDeadlineHint() {
 
 // ===== モードに合わせて、フォームの項目を切り替える =====
 function applyModeToForm() {
-  const isWeek = (currentMode === 'week');
-  // 1weekモード：締切日を表示、時刻は隠す ／ 1dayモード：その逆
-  document.getElementById('deadline-block').style.display = isWeek ? '' : 'none';
-  document.getElementById('time-fields').style.display   = isWeek ? 'none' : '';
+  const m = formMode || currentMode;
+  const hasDate = (m === 'week' || m === 'month');
+  document.getElementById('deadline-block').style.display = hasDate ? '' : 'none';
+  document.getElementById('time-fields').style.display   = (m === 'day') ? '' : 'none';
+  document.querySelector('#deadline-block .field-label').textContent =
+    (m === 'month') ? '📅 日付' : '📅 締切日';
 }
 
 // ===== 入力フォームを初期状態に戻す =====
@@ -367,6 +381,7 @@ function openEditModal(id) {
   const task = findTask(id);
   if (!task) return;
 
+  formMode = task.mode;
   resetAddForm();
   editingTaskId = task.id;
 
@@ -388,7 +403,7 @@ function openEditModal(id) {
     setSelectValue('input-end-minute', task.end_time.slice(3, 5));
   }
   // 1day：開始時刻があって終了時刻がない課題は「終了未定」にチェックを入れる
-  if (currentMode === 'day' && task.start_time && !task.end_time) {
+    if (task.mode === 'day' && task.start_time && !task.end_time) {
     document.getElementById('input-end-time-unknown').checked = true;
     toggleEndTimeInput();
   }
@@ -562,18 +577,26 @@ async function addTask() {
     return;
   }
 
+    const taskMode = formMode || currentMode;
+
   const subject  = document.getElementById('input-subject').value.trim();
-  const deadline = (currentMode === 'week') ? document.getElementById('input-deadline').value : '';
+  const deadline = (taskMode === 'week' || taskMode === 'month')
+    ? document.getElementById('input-deadline').value : '';
   const priority = document.getElementById('input-priority').value;
+
+  if (taskMode === 'month' && !deadline) {
+    alert('日付を選んでください。');
+    return;
+  }
 
   const startHour   = document.getElementById('input-start-hour').value;
   const startMinute = document.getElementById('input-start-minute').value;
-  const startTime = (currentMode === 'day' && startHour) ?  `${startHour}:${startMinute}` : null;
+  const startTime = (taskMode === 'day' && startHour) ? `${startHour}:${startMinute}` : null;
 
   const endTimeUnknown = document.getElementById('input-end-time-unknown').checked;
   const endHour   = document.getElementById('input-end-hour').value;
   const endMinute = document.getElementById('input-end-minute').value;
-  const endTime = (currentMode === 'day' && startHour && !endTimeUnknown && endHour) ? `${endHour}:${endMinute}` : null;
+  const endTime = (taskMode === 'day' && startHour && !endTimeUnknown && endHour) ? `${endHour}:${endMinute}` : null;
 
   // 追加・編集で共通の項目
   const fields = {
@@ -638,7 +661,7 @@ async function addTask() {
   const newTask = {
     ...fields,
     done: false,
-    mode: currentMode
+    mode: taskMode
   };
 
   // ① 先に画面側だけ更新する（サーバーの返事を待たない）
@@ -834,7 +857,9 @@ function formatDeadline(deadlineStr) {
 
 // ===== 統計を更新する =====
 function updateStats() {
-  const modeTasks = tasks.filter(t => t.mode === currentMode);
+  const modeTasks = (currentMode === 'month')
+    ? getMonthTasks()
+    : tasks.filter(t => t.mode === currentMode);
   const undone = modeTasks.filter(t => !t.done).length;
   const done   = modeTasks.filter(t => t.done).length;
 
@@ -845,7 +870,7 @@ function updateStats() {
   const num   = document.getElementById('stat-urgent');
   const label = document.getElementById('stat-urgent-label');
 
-  if (currentMode === 'day') {
+  if (currentMode === 'day' || currentMode === 'month') {
     // 1dayモード：完了率
     const total = modeTasks.length;
     num.textContent   = total === 0 ? '—' : `${Math.round((done / total) * 100)}%`;
@@ -862,6 +887,7 @@ function updateStats() {
 // ===== タスク一覧を描画する =====
 function renderTasks() {
   updateStats();
+  if (currentMode === 'month') renderMonthView();
 
   const list     = document.getElementById('task-list');
   const emptyMsg = document.getElementById('empty-msg');
@@ -1164,6 +1190,172 @@ function renderTodayView() {
   timeline.scrollTop = Math.max(0, nowTop - 100);
 }
 
+// ============================================================
+// 1month モード
+// ============================================================
+let monthCursor  = null;   // 表示中の月の1日（Date）
+let selectedDate = null;   // 選択中の日付（'YYYY-MM-DD'）
+let formMode     = null;   // 追加・編集中の課題のモード
+
+// ローカル時間で 'YYYY-MM-DD' にする（toISOStringはUTCになり1日ずれるので使わない）
+function toDateStr(d) {
+  const y   = d.getFullYear();
+  const m   = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// カレンダー上で、その課題を置く日付（なければnull）
+//   1day  : 作成日  /  1week・1month : deadline
+function getTaskDate(task) {
+  if (task.mode === 'day') {
+    return task.created_at ? toDateStr(new Date(task.created_at)) : null;
+  }
+  return task.deadline || null;
+}
+
+// 表示中の月に属する課題
+function getMonthTasks() {
+  if (!monthCursor) return [];
+  const prefix = toDateStr(monthCursor).slice(0, 7);  // 'YYYY-MM'
+  return tasks.filter(t => {
+    const d = getTaskDate(t);
+    return d && d.startsWith(prefix);
+  });
+}
+
+function changeMonth(delta) {
+  monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + delta, 1);
+  const now = new Date();
+  const isThisMonth = monthCursor.getFullYear() === now.getFullYear()
+                   && monthCursor.getMonth() === now.getMonth();
+  selectedDate = toDateStr(isThisMonth ? now : monthCursor);
+  renderTasks();
+}
+
+function goToToday() {
+  const now = new Date();
+  monthCursor  = new Date(now.getFullYear(), now.getMonth(), 1);
+  selectedDate = toDateStr(now);
+  renderTasks();
+}
+
+function selectDate(dateStr) {
+  selectedDate = dateStr;
+  renderMonthView();
+}
+
+// 月のグリッドと、選択日の一覧を描画する
+function renderMonthView() {
+  if (!monthCursor) return;
+
+  const y = monthCursor.getFullYear();
+  const m = monthCursor.getMonth();
+  document.getElementById('month-title').textContent = `${y}年${m + 1}月`;
+
+  // 日付ごとに課題をまとめる
+  const byDate = {};
+  tasks.forEach(t => {
+    const d = getTaskDate(t);
+    if (!d) return;
+    (byDate[d] = byDate[d] || []).push(t);
+  });
+
+  const grid = document.getElementById('month-grid');
+  grid.innerHTML = '';
+
+  const todayStr    = toDateStr(new Date());
+  const firstDow    = new Date(y, m, 1).getDay();     // 0=日曜
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+  for (let i = 0; i < firstDow; i++) {
+    const blank = document.createElement('div');
+    blank.className = 'month-cell is-blank';
+    grid.appendChild(blank);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = toDateStr(new Date(y, m, d));
+    const items   = byDate[dateStr] || [];
+    const undone  = items.filter(t => !t.done).length;
+
+    let countHtml = '';
+    if (items.length > 0) {
+      countHtml = undone > 0
+        ? `<span class="month-count">${undone}</span>`
+        : `<span class="month-count is-done">✓</span>`;
+    }
+
+    const cell = document.createElement('button');
+    cell.type = 'button';
+    cell.className = 'month-cell'
+      + (dateStr === todayStr ? ' is-today' : '')
+      + (dateStr === selectedDate ? ' is-selected' : '');
+    cell.innerHTML = `<span class="month-day">${d}</span>${countHtml}`;
+    cell.addEventListener('click', () => selectDate(dateStr));
+    grid.appendChild(cell);
+  }
+
+  renderMonthDayList(byDate[selectedDate] || []);
+}
+
+// 選択日のタスク一覧を描画する
+function renderMonthDayList(items) {
+  const title = document.getElementById('month-day-title');
+  const list  = document.getElementById('month-day-list');
+  const empty = document.getElementById('month-day-empty');
+
+  list.innerHTML = '';
+  if (!selectedDate) {
+    title.textContent = '';
+    empty.style.display = 'none';
+    return;
+  }
+
+  const dt = new Date(selectedDate + 'T00:00:00');
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  title.textContent = `${dt.getMonth() + 1}月${dt.getDate()}日（${weekdays[dt.getDay()]}）`;
+  empty.style.display = items.length === 0 ? 'block' : 'none';
+
+  const MODE_LABEL = { day: '日', week: '週', month: '月' };
+  const PRIORITY_ORDER = { '高': 0, '中': 1, '低': 2 };
+
+  const sorted = [...items].sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1);
+  });
+
+  sorted.forEach(task => {
+    let timeText = '';
+    if (task.mode === 'day' && task.start_time) {
+      timeText = formatTime(task.start_time) + (task.end_time ? ` 〜 ${formatTime(task.end_time)}` : '');
+    }
+
+    const card = document.createElement('div');
+    card.className = `task-card${task.done ? ' is-done' : ''}`;
+    card.innerHTML = `
+      <button
+        class="check-btn${task.done ? ' checked' : ''}"
+        onclick="toggleDone('${task.id}')"
+        title="${task.done ? '未完了に戻す' : '完了にする'}"
+      >${task.done ? '✓' : ''}</button>
+
+      <div class="task-info">
+        <div class="task-title">${escapeHtml(task.title)}</div>
+        <div class="task-meta">
+          <span class="mode-badge mode-${task.mode}">${MODE_LABEL[task.mode] || ''}</span>
+          ${timeText ? `<span class="deadline">🕐 ${timeText}</span>` : ''}
+          ${task.subject ? `<span class="badge">${escapeHtml(task.subject)}</span>` : ''}
+          <span class="priority priority-${task.priority}">${task.priority}</span>
+        </div>
+      </div>
+
+      <button class="edit-btn" onclick="openEditModal('${task.id}')" title="編集">✏️</button>
+      <button class="delete-btn" onclick="deleteTask('${task.id}')" title="削除">🗑</button>
+    `;
+    list.appendChild(card);
+  });
+}
 
 // ===== XSS対策 =====
 function escapeHtml(str) {

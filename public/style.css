@@ -1220,3 +1220,74 @@ select {
 }
 
 #day-category-tabs { margin-top: 0.75rem; }
+
+/* ===== 1month モード ===== */
+.month-section,
+.month-day-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.month-nav { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+.month-nav h2 { flex: 1; text-align: center; margin: 0; font-size: 1.1rem; }
+.month-nav-btn,
+.month-today-btn {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.month-today-btn { color: #4f46e5; border-color: #4f46e5; }
+
+.month-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+.month-weekdays span:first-child { color: #dc2626; }
+.month-weekdays span:last-child  { color: #2563eb; }
+
+#month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.month-cell {
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  font-family: inherit;
+  cursor: pointer;
+}
+.month-cell.is-blank { border: none; background: none; cursor: default; }
+.month-cell.is-selected { border-color: #4f46e5; background: #eef2ff; box-shadow: 0 0 0 1px #4f46e5 inset; }
+.month-day {
+  width: 1.6rem; height: 1.6rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; color: #111827;
+}
+#month-grid .month-cell:nth-child(7n+1) .month-day { color: #dc2626; }
+#month-grid .month-cell:nth-child(7n)   .month-day { color: #2563eb; }
+#month-grid .month-cell.is-today .month-day { background: #4f46e5; color: #fff; border-radius: 50%; }
+.month-count {
+  font-size: 0.7rem; font-weight: 600;
+  padding: 0 0.4rem; border-radius: 999px;
+  background: #e0e7ff; color: #4338ca;
+}
+.month-count.is-done { background: #dcfce7; color: #15803d; }
+
+.month-day-section h3 { margin: 0 0 0.75rem; font-size: 1rem; }
+
+.mode-badge { font-size: 0.7rem; font-weight: 600; padding: 0.05rem 0.45rem; border-radius: 999px; }
+.mode-badge.mode-day   { background: #dbeafe; color: #1d4ed8; }
+.mode-badge.mode-week  { background: #fef3c7; color: #b45309; }
+.mode-badge.mode-month { background: #ede9fe; color: #6d28d9; }

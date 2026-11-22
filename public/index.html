@@ -56,6 +56,14 @@
           <span class="mode-card-desc">締切や週の予定をまとめて管理</span>
         </span>
       </button>
+
+      <button class="mode-card" onclick="selectMode('month')">
+        <span class="mode-card-icon">📅</span>
+        <span class="mode-card-text">
+          <span class="mode-card-title">1monthモード</span>
+          <span class="mode-card-desc">1か月の予定とタスクをカレンダーで管理</span>
+        </span>
+      </button>
     </div>
   </div>
 
@@ -187,6 +195,28 @@
       </section>
     </div>
 
+        <!-- 1monthモード -->
+    <div id="month-mode-content" style="display:none">
+      <section class="month-section">
+        <div class="month-nav">
+          <button type="button" class="month-nav-btn" onclick="changeMonth(-1)">◀</button>
+          <h2 id="month-title"></h2>
+          <button type="button" class="month-nav-btn" onclick="changeMonth(1)">▶</button>
+          <button type="button" class="month-today-btn" onclick="goToToday()">今月</button>
+        </div>
+        <div class="month-weekdays">
+          <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+        </div>
+        <div id="month-grid"></div>
+      </section>
+
+      <section class="month-day-section">
+        <h3 id="month-day-title"></h3>
+        <div id="month-day-list"></div>
+        <p id="month-day-empty" class="empty-msg" style="display:none">この日のタスクはありません</p>
+      </section>
+    </div>
+    
     <!-- 課題追加：フローティングボタン -->
     <button id="btn-open-add-modal" onclick="openAddModal()">＋</button>
 
