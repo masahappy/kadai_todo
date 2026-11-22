@@ -30,31 +30,41 @@ function selectCategory(key) {
   renderTasks();
 }
 
-// 1weekの一覧の上に、カテゴリ別のタブを描画する
-function renderCategoryTabs(weekTasks, statusFiltered) {
-  const box = document.getElementById('category-tabs');
+let currentCategoryDay = null;  // 1dayで選択中のカテゴリ（null = 全カテゴリ）
+
+function selectCategoryDay(key) {
+  currentCategoryDay = key;
+  renderTodayView();
+}
+
+// カテゴリ別のタブを描画する（1week・1day共通）
+//   boxId     : タブを入れる要素のid
+//   allTasks  : そのモードの全課題（どんなカテゴリがあるか調べる用）
+//   shownTasks: タブの件数の数え方に使う課題
+//   current   : 選択中のカテゴリ（nullなら全カテゴリ）
+//   onSelect  : タブを押したときの処理
+// 戻り値: 選択中のカテゴリ（なくなっていたらnull）
+function renderCategoryTabs(boxId, allTasks, shownTasks, current, onSelect) {
+  const box = document.getElementById(boxId);
 
   // 使われているカテゴリを、出てきた順に集める（未分類は最後）
   const keys = [];
-  weekTasks.forEach(t => {
+  allTasks.forEach(t => {
     const k = getCategory(t);
     if (k !== UNCATEGORIZED && !keys.includes(k)) keys.push(k);
   });
   const hasNamed = keys.length > 0;
-  if (weekTasks.some(t => getCategory(t) === UNCATEGORIZED)) keys.push(UNCATEGORIZED);
+  if (allTasks.some(t => getCategory(t) === UNCATEGORIZED)) keys.push(UNCATEGORIZED);
 
   // カテゴリが1つもない間は、タブを出さない
   if (!hasNamed) {
-    currentCategory = null;
     box.style.display = 'none';
     box.innerHTML = '';
-    return;
+    return null;
   }
 
   // 選択中のカテゴリがなくなったら、全カテゴリに戻す
-  if (currentCategory !== null && !keys.includes(currentCategory)) {
-    currentCategory = null;
-  }
+  if (current !== null && !keys.includes(current)) current = null;
 
   box.innerHTML = '';
   box.style.display = 'flex';
@@ -62,21 +72,23 @@ function renderCategoryTabs(weekTasks, statusFiltered) {
   const addTab = (key, label, count) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'cat-tab' + (currentCategory === key ? ' active' : '');
+    btn.className = 'cat-tab' + (current === key ? ' active' : '');
     btn.textContent = label;
     const num = document.createElement('span');
     num.className = 'cat-count';
     num.textContent = `(${count})`;
     btn.appendChild(num);
-    btn.addEventListener('click', () => selectCategory(key));
+    btn.addEventListener('click', () => onSelect(key));
     box.appendChild(btn);
   };
 
-  addTab(null, '全カテゴリ', statusFiltered.length);
+  addTab(null, '全カテゴリ', shownTasks.length);
   keys.forEach(k => {
-    const count = statusFiltered.filter(t => getCategory(t) === k).length;
+    const count = shownTasks.filter(t => getCategory(t) === k).length;
     addTab(k, k === UNCATEGORIZED ? '未分類' : k, count);
   });
+
+  return current;
 }
 
 // 追加フォーム：これまで使ったカテゴリを、ボタンで選べるようにする
@@ -754,7 +766,10 @@ async function deleteTask(id) {
 
 // ===== 完了済みタスクをまとめて削除する =====
 async function clearDoneTasks(mode) {
-  const doneTasks = tasks.filter(t => t.mode === mode && t.done);
+  const selected = (mode === 'day') ? currentCategoryDay : currentCategory;
+  const doneTasks = tasks.filter(t =>
+    t.mode === mode && t.done && (selected === null || getCategory(t) === selected)
+  );
 
   if (doneTasks.length === 0) return;
   if (!confirm(`完了済みの${doneTasks.length}件を削除しますか？`)) return;
@@ -862,7 +877,7 @@ function renderTasks() {
   else if (currentFilter === '完了済み') filtered = weekTasks.filter(t => t.done);
   else                                   filtered = weekTasks;
 
-  renderCategoryTabs(weekTasks, filtered);
+  currentCategory = renderCategoryTabs('category-tabs', weekTasks, filtered, currentCategory, selectCategory);
   const visible = (currentCategory === null)
     ? filtered
     : filtered.filter(t => getCategory(t) === currentCategory);
@@ -1017,7 +1032,12 @@ function renderCurrentTimeLine() {
 
 // ===== 今日のタスクビューを描画する =====
 function renderTodayView() {
-  const todayTasks = tasks.filter(t => t.mode === 'day' && !t.done);
+  // カテゴリ別タブ（1day）。選択中のカテゴリの課題だけを表示する
+  const dayAll = tasks.filter(t => t.mode === 'day');
+  currentCategoryDay = renderCategoryTabs('day-category-tabs', dayAll, dayAll, currentCategoryDay, selectCategoryDay);
+  const inCategory = t => currentCategoryDay === null || getCategory(t) === currentCategoryDay;
+
+  const todayTasks = dayAll.filter(t => !t.done && inCategory(t));
 
   buildHourGrid();
 
@@ -1118,7 +1138,7 @@ function renderTodayView() {
   });
 
   // 完了済みタスクを表示
-  const doneTasks = tasks.filter(t => t.mode === 'day' && t.done);
+  const doneTasks = dayAll.filter(t => t.done && inCategory(t));
   const doneList  = document.getElementById('today-done-list');
   const doneEmpty = document.getElementById('today-done-empty');
 
